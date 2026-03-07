@@ -4,21 +4,17 @@ let
 in {
   services.nextcloud = {
     enable = true;
-    package = pkgs.nextcloud28;
+    package = pkgs.nextcloud30;
     hostName = "${fqdn}";
-    home = "${config.services.globalVars.containerDir}/nextcloud";
     https = true;
     config = {
-      extraTrustedDomains = [ "${fqdn}" ];
       adminpassFile = "${pkgs.writeText "adminpass" "test123"}";
-      dbtableprefix = "oc_";
     };
-    
+    configureRedis = true;
     appstoreEnable = true;
-    autoUpdateApps.enable = true;
-
-    # extraApps = {
-    #   inherit (config.services.nextcloud.package.packages.apps) bookmarks contacts calendar deck onlyoffice tasks;
+    # autoUpdateApps.enable = true;
+    extraApps = {
+       inherit (config.services.nextcloud.package.packages.apps) bookmarks contacts calendar deck onlyoffice tasks;
     #   memories = pkgs.fetchNextcloudApp {
     #     sha256 = "sha256-Xr1SRSmXo2r8yOGuoMyoXhD0oPVm/0/ISHlmNZpJYsg=";
     #     url = "https://github.com/pulsejet/memories/releases/download/v6.2.2/memories.tar.gz";
@@ -34,16 +30,16 @@ in {
     #     url = "https://github.com/nextcloud/recognize/releases/download/v6.0.1/recognize-6.0.1.tar.gz";
     #     license = "agpl3";
     #   };
-    # };
-    # extraAppsEnable = true;
-
-    extraOptions = {
-      "memories.exiftool" = "${lib.getExe pkgs.exiftool}";
     };
+    extraAppsEnable = true;
+    # settings = {
+    #   "memories.exiftool" = "${lib.getExe pkgs.exiftool}";
+    #   trusted_domains = [ "${fqdn}" ];
+    # };
   };
-  systemd.services.nextcloud-cron = {
-    path = [ pkgs.perl ];
-  };
+  # systemd.services.nextcloud-cron = {
+  #   path = [ pkgs.perl ];
+  # };
 
   services.nginx.virtualHosts."${fqdn}" = {
     forceSSL = true;

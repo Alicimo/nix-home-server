@@ -1,18 +1,17 @@
 { config, ... }:
 {
-  # Samba
   services.samba-wsdd.enable = true;
   services.samba = {
     enable = true;
-    securityType = "user";
-    extraConfig = ''
-      server string = smbnix
-      guest ok = yes
-      guest account = nobody
-      map to guest = bad user
-    '';
-    shares = {
-      public = {
+    settings = {
+      global = {
+        security = "user";
+        "server string" = "smbnix";
+        "guest ok" = "yes";
+        "guest account" = "nobody";
+        "map to guest" = "bad user";
+      };
+      "public" = {
         path = "${config.services.globalVars.dataDir}";
         browseable = "yes";
         "read only" = "no";

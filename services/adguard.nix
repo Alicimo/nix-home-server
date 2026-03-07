@@ -1,12 +1,13 @@
 { config, ... }:
 let
-  port = "999";
+  port = 999;
 in {
   services.adguardhome = {
     enable = true;
+    port = port;
     settings = {
       http = {
-        address = "0.0.0.0:${port}";
+        address = "0.0.0.0:${toString port}";
       };
       dns = {
         filters_update_interval = 1;
@@ -49,5 +50,5 @@ in {
     };
   };
 
-  services.nginx.virtualHosts."adguard.${config.networking.fqdn}".locations."/".proxyPass = "http://127.0.0.1:${port}";
+  services.nginx.virtualHosts."adguard.${config.networking.fqdn}".locations."/".proxyPass = "http://127.0.0.1:${toString port}";
 }

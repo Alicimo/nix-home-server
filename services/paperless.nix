@@ -5,7 +5,7 @@
     dataDir = "${config.services.globalVars.dataDir}/paperless";
     passwordFile = "/etc/nixos/secrets/paperless-password";
     consumptionDirIsPublic = true;
-    extraConfig = {
+    settings = {
       PAPERLESS_OCR_LANGUAGE = "deu+eng";
       PAPERLESS_AUTO_LOGIN_USERNAME = "admin";
     };

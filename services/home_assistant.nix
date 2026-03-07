@@ -4,7 +4,7 @@
         enable = true;
         extraComponents = [
             "met"
-            "fronius"
+            # "fronius"
             "tradfri"
             # "tplink"
             # "roomba"
@@ -30,9 +30,9 @@
         ];
         customComponents = [
              (pkgs.callPackage ../pkgs/home-assistant/midea_ac_lan.nix {})
-             (pkgs.callPackage ../pkgs/home-assistant/home-assistant-tapo.nix {
-                plugp100 = (pkgs.python3Packages.callPackage ../pkgs/python/plugp100.nix {});
-             })
+            #  (pkgs.callPackage ../pkgs/home-assistant/home-assistant-tapo.nix {
+            #     plugp100 = (pkgs.python3Packages.callPackage ../pkgs/python/plugp100.nix {});
+            #  })
         ];
         config = {
             default_config = {};

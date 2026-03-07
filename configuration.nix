@@ -18,7 +18,7 @@
       services/grafana.nix
       services/prometheus.nix
       services/fronius.nix
-      services/smokeping.nix
+ #     services/smokeping.nix
       services/vaultwarden.nix
       services/librespeed.nix
       services/libation.nix
@@ -35,16 +35,21 @@
       services/uptime.nix
     ];
 
-  services.globalVars.dataDir = "/mnt/data";
-  services.globalVars.domain = "alistair-martin.com";
-
+  services.globalVars = {
+    dataDir = "/mnt/data";
+    domain = "alistair-martin.com";
+  };
 
   # Bootloader.
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
+  boot.loader = {
+    systemd-boot.enable = true;
+    efi.canTouchEfiVariables = true;
+  };
 
-  system.autoUpgrade.enable  = true;
-  system.autoUpgrade.allowReboot  = true;
+  system.autoUpgrade = {
+    enable  = true;
+    allowReboot  = true;
+  };
 
   networking = {
     hostName = "tiefenbacher";
@@ -60,17 +65,19 @@
   # Select internationalisation properties.
   i18n.defaultLocale = "en_GB.UTF-8";
 
-  services.xserver = {
-    enable = true;
+  services = {
+    xserver = {
+      enable = true;
 
-    # Enable the XFCE Desktop Environment.
-    desktopManager.xfce.enable = true;
+      # Enable the XFCE Desktop Environment.
+      desktopManager.xfce.enable = true;
+      displayManager.lightdm.enable = true;
+    };
     displayManager = {
-      lightdm.enable = true;
-
-      # Enable automatic login for the user.
-      autoLogin.enable = true;
-      autoLogin.user = "alistair";
+      autoLogin = {
+        enable = true;
+        user = "alistair";
+      };
     };
   };
 
@@ -78,14 +85,14 @@
   users.users.alistair = {
     isNormalUser = true;
     description = "Alistair";
-    extraGroups = [ "networkmanager" "wheel" "docker" ];
+    extraGroups = [ "networkmanager" "wheel" "docker" "video" "render" ];
   };
 
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
-  # List packages installed in system profile. To search, run:
+  # List packages installed in system profile. To seardch, run:
   environment.systemPackages = with pkgs; [
     docker-compose
     git
@@ -106,6 +113,7 @@
     libtensorflow
     yt-dlp
     borgbackup
+    bat
   ];
 
   # List services that you want to enable:
