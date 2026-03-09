@@ -9,6 +9,7 @@ in {
     https = true;
     config = {
       adminpassFile = "${pkgs.writeText "adminpass" "test123"}";
+      dbtype = "sqlite";
     };
     configureRedis = true;
     appstoreEnable = true;

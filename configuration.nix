@@ -18,14 +18,14 @@
       services/grafana.nix
       services/prometheus.nix
       services/fronius.nix
- #     services/smokeping.nix
+#      services/smokeping.nix
       services/vaultwarden.nix
       services/librespeed.nix
       services/libation.nix
       services/audiobookshelf.nix
       services/freshrss.nix
-      services/vscode_server.nix
-      services/openvscode.nix
+#      services/vscode_server.nix
+#      services/openvscode.nix
       services/whoogle.nix
       services/duplicati.nix
       services/home_assistant.nix
@@ -47,7 +47,7 @@
   };
 
   system.autoUpgrade = {
-    enable  = true;
+    enable  = false;
     allowReboot  = true;
   };
 
@@ -91,6 +91,10 @@
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
+  nixpkgs.config.permittedInsecurePackages = [
+  "openssl-1.1.1w"
+  "nextcloud-30.0.17"
+  ];
 
   # List packages installed in system profile. To seardch, run:
   environment.systemPackages = with pkgs; [
@@ -109,8 +113,8 @@
     dig
     ffmpeg
     exiftool
-    nodejs
-    libtensorflow
+    # nodejs
+    # libtensorflow
     yt-dlp
     borgbackup
     bat
