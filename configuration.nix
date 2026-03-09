@@ -93,7 +93,7 @@
   nixpkgs.config.allowUnfree = true;
   nixpkgs.config.permittedInsecurePackages = [
   "openssl-1.1.1w"
-  "nextcloud-30.0.17"
+  "nextcloud-31.0.14"
   ];
 
   # List packages installed in system profile. To seardch, run:
