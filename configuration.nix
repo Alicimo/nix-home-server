@@ -2,9 +2,17 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, lib, ... }:
+{ config, pkgs, inputs, ... }:
 {
-  nixpkgs.overlays = [ (final: prev: { dashy = prev.callPackage overlays/dashy.nix prev; } ) ];
+  nixpkgs.overlays = [
+    (final: prev: {
+      dashy = prev.callPackage ./overlays/dashy.nix { };
+      unstable = import inputs.nixpkgs-unstable {
+        inherit (prev) system;
+        config = config.nixpkgs.config;
+      };
+    })
+  ];
 
   imports =
     [
@@ -24,7 +32,6 @@
       services/libation.nix
       services/audiobookshelf.nix
       services/freshrss.nix
-#      services/vscode_server.nix
 #      services/openvscode.nix
       services/whoogle.nix
       services/duplicati.nix
@@ -164,10 +171,13 @@
     };
   };
 
-  nix.optimise.automatic = true;
-  nix.gc = {
-    automatic = true;
-    options = "--delete-older-than 7d";
+  nix = {
+    settings.experimental-features = [ "nix-command" "flakes" ];
+    optimise.automatic = true;
+    gc = {
+      automatic = true;
+      options = "--delete-older-than 7d";
+    };
   };
 
   system.stateVersion = "23.05"; # Did you read the comment?
