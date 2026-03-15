@@ -105,7 +105,6 @@
 
   # List packages installed in system profile. To seardch, run:
   environment.systemPackages = with pkgs; [
-    opencode
 
     # CLI tools
     bat # A cat clone with syntax highlighting and Git integration
@@ -159,9 +158,7 @@
     unzip # Extracts .zip archive files
     curl # Tool for transferring data with URLs
     zip # Package and compress files into .zip format
-
-
-  ];
+  ] ++ [ unstable.pkgs.opencode ];
 
   # List services that you want to enable:
 
@@ -171,6 +168,9 @@
     enable = true;
     useRoutingFeatures = "server";
   };
+  services.atuin.enable = true;
+
+  programs.direnv.enable = true;
 
   # Containers
   virtualisation = {
