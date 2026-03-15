@@ -105,26 +105,62 @@
 
   # List packages installed in system profile. To seardch, run:
   environment.systemPackages = with pkgs; [
-    docker-compose
-    git
+    opencode
+
+    # CLI tools
+    bat # A cat clone with syntax highlighting and Git integration
+    coreutils # GNU core utilities like ls, cp, mv, etc.
+    dust # A more intuitive version of `du` for disk usage
+    ripgrep # Fast recursive search like grep, but better
+    tree # Displays directory structure in a tree-like format
+    wget # Non-interactive network downloader
+    delta # Syntax-aware diff tool
+    eza # Modern replacement for `ls` with more features
+    fd # Simple, fast and user-friendly alternative to `find`
+    pciutils # Tools for inspecting and configuring PCI devices
+    nixfmt-tree # treefmt combined w/ nix-fmt for linting/formating of .nix
+    tldr # Simplified and community-driven man
+
+    # Monitors
+    btop # Resource monitor with a modern UI
+    iotop # Monitor disk I/O usage by processes
+    nload # Real-time network traffic monitor
+
+    # File-related packages
+    pandoc # Universal document converter
+    imagemagick # Toolset for editing and converting images
+    ffmpeg # Command-line tool for processing video and audio
+    rsync # Efficiently sync files and directories over network or locally
+    visidata # Terminal spreadsheet multitool for data exploration
+
+    # Dev
+    sqlite # Lightweight, self-contained SQL database engine
+    devenv # Tool for reproducible, shareable developer environments
+    git # Distributed version control system
     git-lfs
-    htop
+    repomix # Tool for managing monorepos (multi-package repositories)
+    podman # Container runtime for building and running Docker containers
+    nodejs_24 # Nodejs is required to run mcp servers
+    uv # Ultra-fast Python package manager and environment manager
+    python312 # System Python for non-uv usage
+
+    docker-compose
     hwinfo
-    iotop
     lm_sensors
-    nmap
-    tailscale
     unzip
-    wget
-    lsof
     dig
     ffmpeg
     exiftool
-    # nodejs
-    # libtensorflow
     yt-dlp
     borgbackup
-    bat
+
+    # CLI utilities (included in MacOS)
+    killall # Kill processes by name
+    unzip # Extracts .zip archive files
+    curl # Tool for transferring data with URLs
+    zip # Package and compress files into .zip format
+
+
   ];
 
   # List services that you want to enable:
