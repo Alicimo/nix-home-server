@@ -21,11 +21,13 @@
       modules/vars.nix
       services/samba.nix
       services/jellyfin.nix
+      services/ersatztv.nix
+      services/navidrome.nix
       services/nextcloud.nix
       services/adguard.nix
-      services/grafana.nix
-      services/prometheus.nix
-      services/fronius.nix
+#      services/grafana.nix
+#      services/prometheus.nix
+#      services/fronius.nix
 #      services/smokeping.nix
       services/vaultwarden.nix
       services/librespeed.nix
@@ -33,12 +35,12 @@
       services/audiobookshelf.nix
       services/freshrss.nix
 #      services/openvscode.nix
-      services/whoogle.nix
+#      services/whoogle.nix
       services/duplicati.nix
       services/home_assistant.nix
       services/paperless.nix
       services/stirling.nix
-      services/tandoor.nix
+#      services/tandoor.nix
       services/uptime.nix
     ];
 
@@ -119,6 +121,8 @@
     pciutils # Tools for inspecting and configuring PCI devices
     nixfmt-tree # treefmt combined w/ nix-fmt for linting/formating of .nix
     tldr # Simplified and community-driven man
+    lazygit
+    screen
 
     # Monitors
     btop # Resource monitor with a modern UI
