@@ -8,7 +8,7 @@
     (final: prev: {
       dashy = prev.callPackage ./overlays/dashy.nix { };
       unstable = import inputs.nixpkgs-unstable {
-        inherit (prev) system;
+        system = prev.stdenv.hostPlatform.system;
         config = config.nixpkgs.config;
       };
     })
