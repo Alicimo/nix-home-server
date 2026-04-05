@@ -22,6 +22,7 @@
       services/samba.nix
       services/jellyfin.nix
       services/ersatztv.nix
+      services/pinchflat.nix
       services/navidrome.nix
       services/nextcloud.nix
       services/adguard.nix
