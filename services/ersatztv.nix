@@ -1,4 +1,4 @@
-{ config, ... }:
+{ config, pkgs, ... }:
 let
   fqdn = "tv.${config.services.globalVars.domain}";
   port = 8409;
@@ -8,6 +8,9 @@ in
     enable = true;
     baseUrl = "/";
     openFirewall = false;
+    package = pkgs.ersatztv.override {
+      ffmpeg = pkgs.jellyfin-ffmpeg;
+    };
     environment.ETV_UI_PORT = port;
   };
 
