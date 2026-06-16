@@ -37,6 +37,7 @@
       services/freshrss.nix
 #      services/openvscode.nix
 #      services/whoogle.nix
+      services/restic.nix
       services/duplicati.nix
       services/home_assistant.nix
       services/paperless.nix
