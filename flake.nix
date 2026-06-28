@@ -4,6 +4,7 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
+    learnr.url = "github:Alicimo/learnr";
   };
 
   outputs = { nixpkgs, ... }@inputs:
@@ -14,6 +15,7 @@
         inherit system;
         specialArgs = { inherit inputs; };
         modules = [
+          inputs.learnr.nixosModules.default
           ./configuration.nix
         ];
       };

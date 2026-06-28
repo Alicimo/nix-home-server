@@ -42,6 +42,7 @@
       services/home_assistant.nix
       services/paperless.nix
       services/stirling.nix
+      services/learnr.nix
 #      services/tandoor.nix
       services/uptime.nix
     ];
@@ -181,6 +182,7 @@
   virtualisation = {
     docker = {
       enable = true;
+      package = pkgs.docker_29;
       autoPrune.enable = true;
     };
     podman = {
