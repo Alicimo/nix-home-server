@@ -182,7 +182,6 @@
   virtualisation = {
     docker = {
       enable = true;
-      package = pkgs.docker_29;
       autoPrune.enable = true;
     };
     podman = {
@@ -210,7 +209,7 @@
       email = "contact@alistair-martin.com";
       group = "nginx";
       dnsProvider = "cloudflare";
-      credentialsFile = "/etc/nixos/secrets/cloudflare.env";
+      environmentFile = "/etc/nixos/secrets/cloudflare.env";
     };
   };
 
