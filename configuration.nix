@@ -147,7 +147,7 @@
     podman # Container runtime for building and running Docker containers
     nodejs_24 # Nodejs is required to run mcp servers
     uv # Ultra-fast Python package manager and environment manager
-    python312 # System Python for non-uv usage
+    python3 # System Python for non-uv usage
 
     docker-compose
     hwinfo
