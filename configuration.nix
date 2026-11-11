@@ -45,6 +45,9 @@
       services/learnr.nix
 #      services/tandoor.nix
       services/uptime.nix
+      services/opencode.nix
+      services/baby_names.nix
+      services/retirement_planning.nix
     ];
 
   services.globalVars = {
@@ -158,6 +161,8 @@
     exiftool
     yt-dlp
     borgbackup
+    restic
+    fuse3
 
     # CLI utilities (included in MacOS)
     killall # Kill processes by name

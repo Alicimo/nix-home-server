@@ -1,0 +1,87 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+bucket="tiefenbacher-restic"
+mount_base="/mnt/restic"
+password_file="/etc/nixos/secrets/restic-password"
+environment_file="/etc/nixos/secrets/restic-b2.env"
+
+repos=(core documents photos)
+pids=()
+
+if [[ "${EUID}" -ne 0 ]]; then
+  echo "Run as root: sudo $0" >&2
+  exit 1
+fi
+
+export PATH="/run/wrappers/bin:/run/current-system/sw/bin:${PATH}"
+
+if ! command -v restic >/dev/null 2>&1; then
+  echo "restic is not available. Rebuild after adding it to environment.systemPackages." >&2
+  exit 1
+fi
+
+if ! command -v fusermount3 >/dev/null 2>&1 && ! command -v fusermount >/dev/null 2>&1; then
+  echo "fusermount is not available. Rebuild after adding fuse3 to environment.systemPackages." >&2
+  exit 1
+fi
+
+if [[ ! -r "${password_file}" ]]; then
+  echo "Cannot read password file: ${password_file}" >&2
+  exit 1
+fi
+
+if [[ ! -r "${environment_file}" ]]; then
+  echo "Cannot read environment file: ${environment_file}" >&2
+  exit 1
+fi
+
+set -a
+# shellcheck source=/dev/null
+source "${environment_file}"
+set +a
+
+cleanup() {
+  trap - EXIT INT TERM
+
+  for repo in "${repos[@]}"; do
+    mount_point="${mount_base}/${repo}"
+    if mountpoint -q "${mount_point}"; then
+      umount "${mount_point}" || true
+    fi
+  done
+
+  for pid in "${pids[@]}"; do
+    if kill -0 "${pid}" >/dev/null 2>&1; then
+      kill "${pid}" >/dev/null 2>&1 || true
+    fi
+  done
+}
+
+trap cleanup EXIT INT TERM
+
+mkdir -p "${mount_base}"
+
+for repo in "${repos[@]}"; do
+  mount_point="${mount_base}/${repo}"
+  mkdir -p "${mount_point}"
+
+  if mountpoint -q "${mount_point}"; then
+    echo "Already mounted: ${mount_point}" >&2
+    exit 1
+  fi
+
+  echo "Mounting b2:${bucket}:${repo} at ${mount_point}"
+  restic \
+    -r "b2:${bucket}:${repo}" \
+    --password-file "${password_file}" \
+    mount "${mount_point}" &
+  pids+=("$!")
+done
+
+echo
+echo "Restic repositories mounted under ${mount_base}."
+echo "Browse snapshots via ${mount_base}/<repo>/snapshots/latest"
+echo "Press Ctrl-C to unmount."
+
+wait
