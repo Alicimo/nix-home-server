@@ -1,6 +1,6 @@
 { config, ... }:
 let
-  port = 999;
+  port = config.services.endpoints.adguard.tcp.http;
 in {
   services.adguardhome = {
     enable = true;
@@ -50,5 +50,5 @@ in {
     };
   };
 
-  services.nginx.virtualHosts."adguard.${config.networking.fqdn}".locations."/".proxyPass = "http://127.0.0.1:${toString port}";
+  services.nginx.virtualHosts."${config.services.endpoints.adguard.hostnames.lan}".locations."/".proxyPass = "http://127.0.0.1:${toString port}";
 }

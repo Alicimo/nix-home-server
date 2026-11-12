@@ -1,7 +1,7 @@
 { config, pkgs, ... }:
 let
-  fqdn = "tv.${config.services.globalVars.domain}";
-  port = 8409;
+  fqdn = config.services.endpoints.ersatztv.hostnames.public;
+  port = config.services.endpoints.ersatztv.tcp.http;
   ffmpegPath = "${pkgs.jellyfin-ffmpeg}/bin/ffmpeg";
   ffprobePath = "${pkgs.jellyfin-ffmpeg}/bin/ffprobe";
 in

@@ -1,7 +1,7 @@
 { config, pkgs, ... }:
 let
-  fqdn = "opencode.${config.services.globalVars.domain}";
-  port = 4096;
+  fqdn = config.services.endpoints.opencode.hostnames.public;
+  port = config.services.endpoints.opencode.tcp.http;
 in
 {
   systemd.services.opencode-web = {

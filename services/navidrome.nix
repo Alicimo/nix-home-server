@@ -1,12 +1,12 @@
 { config, ... }:
 let
-  fqdn = "music.${config.services.globalVars.domain}";
+  fqdn = config.services.endpoints.navidrome.hostnames.public;
 in {
   services.navidrome = {
     enable = true;
     settings = {
       Address = "0.0.0.0";
-      Port = 4533;
+      Port = config.services.endpoints.navidrome.tcp.http;
       MusicFolder = "${config.services.globalVars.mediaDir}/Music";
       DataFolder = "${config.services.globalVars.containerDir}/navidrome";
       EnableInsightsCollector = false;
@@ -14,7 +14,7 @@ in {
   };
 
   services.nginx.virtualHosts."${fqdn}" = {
-    locations."/".proxyPass = "http://127.0.0.1:4533";
+    locations."/".proxyPass = "http://127.0.0.1:${toString config.services.endpoints.navidrome.tcp.http}";
     forceSSL = true;
     enableACME = true;
     acmeRoot = null;

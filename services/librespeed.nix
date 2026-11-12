@@ -1,6 +1,6 @@
 { config, ... }:
 let
-  port = "777";
+  port = toString config.services.endpoints.librespeed.tcp.http;
 in {
   virtualisation.oci-containers.containers = {
     librespeed = {
@@ -18,5 +18,5 @@ in {
     };
   };
 
-  services.nginx.virtualHosts."speed.${config.networking.fqdn}".locations."/".proxyPass = "http://127.0.0.1:${port}";
+  services.nginx.virtualHosts."${config.services.endpoints.librespeed.hostnames.lan}".locations."/".proxyPass = "http://127.0.0.1:${port}";
 }

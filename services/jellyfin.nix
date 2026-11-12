@@ -10,9 +10,9 @@
 
   services.jellyfin.enable = true;
 
-  services.nginx.virtualHosts."jellyfin.${config.networking.fqdn}".locations."/".proxyPass = "http://127.0.0.1:8096";
-  services.nginx.virtualHosts."jellyfin.${config.services.globalVars.domain}" = {
-    locations."/".proxyPass = "http://127.0.0.1:8096";
+  services.nginx.virtualHosts."${config.services.endpoints.jellyfin.hostnames.lan}".locations."/".proxyPass = "http://127.0.0.1:${toString config.services.endpoints.jellyfin.tcp.http}";
+  services.nginx.virtualHosts."${config.services.endpoints.jellyfin.hostnames.public}" = {
+    locations."/".proxyPass = "http://127.0.0.1:${toString config.services.endpoints.jellyfin.tcp.http}";
     forceSSL = true;
     enableACME = true;
     acmeRoot = null;

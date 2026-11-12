@@ -1,8 +1,8 @@
 { config, ... }:
 let
-  fqdn = "pinchflat.${config.services.globalVars.domain}";
+  fqdn = config.services.endpoints.pinchflat.hostnames.public;
   mediaDir = "${config.services.globalVars.mediaDir}/YouTube";
-  port = 8945;
+  port = config.services.endpoints.pinchflat.tcp.http;
 in
 {
   services.pinchflat = {

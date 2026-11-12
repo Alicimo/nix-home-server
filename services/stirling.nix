@@ -1,7 +1,7 @@
 { config, ... }:
 let
   dir="${config.services.globalVars.containerDir}/stirling";
-  port="1966";
+  port = toString config.services.endpoints.stirling.tcp.http;
 in {
   virtualisation.oci-containers.containers = {
      stirling = {
@@ -14,5 +14,5 @@ in {
     };
   };
 
-  services.nginx.virtualHosts."pdf.${config.networking.fqdn}".locations."/".proxyPass = "http://127.0.0.1:${port}";
+  services.nginx.virtualHosts."${config.services.endpoints.stirling.hostnames.lan}".locations."/".proxyPass = "http://127.0.0.1:${port}";
 }

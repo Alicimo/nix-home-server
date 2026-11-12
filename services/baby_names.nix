@@ -1,7 +1,7 @@
 { config, pkgs, ... }:
 let
-  fqdn = "baby-names.${config.services.globalVars.domain}";
-  port = 8023;
+  fqdn = config.services.endpoints.baby-names.hostnames.public;
+  port = config.services.endpoints.baby-names.tcp.http;
   appDir = "/home/alistair/workspace/baby_names";
 in
 {

@@ -1,7 +1,7 @@
 { config, ... }:
 let
   dir="${config.services.globalVars.containerDir}/audiobookshelf";
-  port="13378";
+  port = toString config.services.endpoints.audiobookshelf.tcp.http;
 in {
   virtualisation.oci-containers.containers = {
      audiobookshelf = {
@@ -16,7 +16,7 @@ in {
     };
   };
 
-  services.nginx.virtualHosts."audiobook.${config.networking.fqdn}".locations."/" = {
+  services.nginx.virtualHosts."${config.services.endpoints.audiobookshelf.hostnames.lan}".locations."/" = {
     proxyPass = "http://127.0.0.1:${port}";
     proxyWebsockets = true;
   };

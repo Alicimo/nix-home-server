@@ -1,6 +1,6 @@
 { pkgs, config, lib, ... }:
 let
-    fqdn = "nextcloud.${config.services.globalVars.domain}";
+    fqdn = config.services.endpoints.nextcloud.hostnames.public;
 in {
   services.nextcloud = {
     enable = true;

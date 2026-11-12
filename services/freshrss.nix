@@ -1,6 +1,6 @@
 { config, ... }:
 let
-  fqdn = "rss.${config.services.globalVars.domain}";
+  fqdn = config.services.endpoints.freshrss.hostnames.public;
   dir = "${config.services.globalVars.containerDir}/freshrss";
 in {
   services.freshrss = {

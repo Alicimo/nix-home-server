@@ -1,13 +1,13 @@
 { config, ... }:
 let
-    port = 1066;
+    port = config.services.endpoints.duplicati.tcp.http;
 in {
     services.duplicati = {
         enable = true;
         port = port;
         interface = "any";
     };
-    services.nginx.virtualHosts."backup.${config.networking.fqdn}".locations."/" = {
+    services.nginx.virtualHosts."${config.services.endpoints.duplicati.hostnames.lan}".locations."/" = {
         proxyPass = "http://127.0.0.1:${toString port}";
         proxyWebsockets = true;
     };

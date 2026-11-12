@@ -1,6 +1,6 @@
 { config, ... }:
 let
-  port="2542";
+  port = toString config.services.endpoints.uptime-kuma.tcp.http;
 in {
   services.uptime-kuma = {
     enable = true;
@@ -9,7 +9,7 @@ in {
     };
   };
   services.nginx.virtualHosts = {
-    "uptime.${config.networking.fqdn}".locations."/".proxyPass = "http://127.0.0.1:${port}";
-    "${config.networking.fqdn}".locations."/".proxyPass = "http://127.0.0.1:${port}";
+    "${config.services.endpoints.uptime-kuma.hostnames.lan}".locations."/".proxyPass = "http://127.0.0.1:${port}";
+    "${config.services.endpoints.uptime-kuma.hostnames.root}".locations."/".proxyPass = "http://127.0.0.1:${port}";
   };
 }

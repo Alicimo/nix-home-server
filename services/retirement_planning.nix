@@ -1,7 +1,7 @@
 { config, pkgs, ... }:
 let
-  fqdn = "retirement.${config.services.globalVars.domain}";
-  port = 8024;
+  fqdn = config.services.endpoints.retirement-planning.hostnames.public;
+  port = config.services.endpoints.retirement-planning.tcp.http;
   appDir = "/home/alistair/workspace/retirement_planning";
   dataDir = "${appDir}/data";
 in

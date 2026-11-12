@@ -18,6 +18,7 @@
     [
       ./hardware-configuration.nix
       ./vim.nix
+      ./service-endpoints.nix
       modules/vars.nix
       services/samba.nix
       services/jellyfin.nix
@@ -202,7 +203,7 @@
     recommendedTlsSettings = true;
     recommendedOptimisation = true;
     recommendedGzipSettings = true;
-    virtualHosts."mistake.${config.networking.fqdn}" = {
+    virtualHosts."${config.services.endpoints.nginx.hostnames.fallback}" = {
       default = true;
       locations."/".return = "404";
     };

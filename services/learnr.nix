@@ -1,7 +1,7 @@
 { config, ... }:
 let
-  fqdn = "learnr.${config.services.globalVars.domain}";
-  port = 8016;
+  fqdn = config.services.endpoints.learnr.hostnames.public;
+  port = config.services.endpoints.learnr.tcp.http;
 in
 {
   services.learnr = {

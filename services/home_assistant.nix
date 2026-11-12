@@ -38,6 +38,7 @@
             default_config = {};
             http = {
                 server_host = "::1";
+                server_port = config.services.endpoints.home-assistant.tcp.http;
                 trusted_proxies = [ "::1" ];
                 use_x_forwarded_for = true;
             };
@@ -55,7 +56,7 @@
 
     nixpkgs.config.permittedInsecurePackages = [ "openssl-1.1.1w" ];
 
-    services.nginx.virtualHosts."hass.${config.services.globalVars.domain}" = {
+    services.nginx.virtualHosts."${config.services.endpoints.home-assistant.hostnames.public}" = {
         forceSSL = true;
         enableACME = true;
         acmeRoot = null;
@@ -63,7 +64,7 @@
         proxy_buffering off;
         '';
         locations."/" = {
-            proxyPass = "http://[::1]:8123";
+            proxyPass = "http://[::1]:${toString config.services.endpoints.home-assistant.tcp.http}";
             proxyWebsockets = true;
         };
     };
