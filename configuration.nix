@@ -142,6 +142,7 @@
     visidata # Terminal spreadsheet multitool for data exploration
 
     # Dev
+    unstable.codex # Codex CLI for SSH projects
     sqlite # Lightweight, self-contained SQL database engine
     devenv # Tool for reproducible, shareable developer environments
     git # Distributed version control system
