@@ -1,6 +1,5 @@
 { config, ... }:
 let
-  fqdn = config.services.endpoints.learnr.hostnames.public;
   port = config.services.endpoints.learnr.tcp.http;
 in
 {
@@ -10,10 +9,5 @@ in
     port = port;
   };
 
-  services.nginx.virtualHosts."${fqdn}" = {
-    locations."/".proxyPass = "http://127.0.0.1:${toString port}";
-    forceSSL = true;
-    enableACME = true;
-    acmeRoot = null;
-  };
+  services.endpoints.learnr.nginx.enable = true;
 }

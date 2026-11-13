@@ -10,10 +10,5 @@
       PAPERLESS_AUTO_LOGIN_USERNAME = "admin";
     };
   };
-  services.nginx.virtualHosts."${config.services.endpoints.paperless.hostnames.public}" = {
-    locations."/".proxyPass = "http://127.0.0.1:${toString config.services.endpoints.paperless.tcp.http}";
-    forceSSL = true;
-    enableACME = true;
-    acmeRoot = null;
-  };
+  services.endpoints.paperless.nginx.enable = true;
 }

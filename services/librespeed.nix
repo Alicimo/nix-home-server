@@ -18,12 +18,5 @@ in {
     };
   };
 
-  services.nginx.virtualHosts."${config.services.endpoints.librespeed.hostnames.public}" = {
-    forceSSL = true;
-    enableACME = true;
-    acmeRoot = null;
-    locations."/" = {
-      proxyPass = "http://127.0.0.1:${port}";
-    };
-  };
+  services.endpoints.librespeed.nginx.enable = true;
 }

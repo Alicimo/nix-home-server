@@ -11,9 +11,8 @@ in {
     virtualHost = "${fqdn}";
     dataDir = "${dir}";
   };
-  services.nginx.virtualHosts."${fqdn}" = {
-    forceSSL = true;
-    enableACME = true;
-    acmeRoot = null;
+  services.endpoints.freshrss.nginx = {
+    enable = true;
+    proxy = false;
   };
 }

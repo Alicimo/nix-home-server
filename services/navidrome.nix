@@ -1,7 +1,5 @@
 { config, ... }:
-let
-  fqdn = config.services.endpoints.navidrome.hostnames.public;
-in {
+{
   services.navidrome = {
     enable = true;
     settings = {
@@ -13,10 +11,5 @@ in {
     };
   };
 
-  services.nginx.virtualHosts."${fqdn}" = {
-    locations."/".proxyPass = "http://127.0.0.1:${toString config.services.endpoints.navidrome.tcp.http}";
-    forceSSL = true;
-    enableACME = true;
-    acmeRoot = null;
-  };
+  services.endpoints.navidrome.nginx.enable = true;
 }

@@ -1,6 +1,5 @@
 { config, pkgs, ... }:
 let
-  fqdn = config.services.endpoints.retirement-planning.hostnames.public;
   port = config.services.endpoints.retirement-planning.tcp.http;
   appDir = "/home/alistair/workspace/retirement_planning";
   dataDir = "${appDir}/data";
@@ -28,18 +27,8 @@ in
     };
   };
 
-  services.nginx.virtualHosts."${fqdn}" = {
-    forceSSL = true;
-    enableACME = true;
-    acmeRoot = null;
-
-    locations."/" = {
-      proxyPass = "http://127.0.0.1:${toString port}";
-      proxyWebsockets = true;
-      extraConfig = ''
-        allow 100.64.0.0/10;
-        deny all;
-      '';
-    };
+  services.endpoints.retirement-planning.nginx = {
+    enable = true;
+    proxyWebsockets = true;
   };
 }

@@ -1,6 +1,7 @@
 { config, lib, ... }:
 let
   public = config.services.globalVars.domain;
+  nginxEndpoints = lib.filterAttrs (_: endpoint: endpoint.nginx.enable) config.services.endpoints;
 in
 {
   options.services.endpoints = lib.mkOption {
@@ -27,9 +28,47 @@ in
           default = { };
           description = "Named nginx hostnames.";
         };
+        nginx = {
+          enable = lib.mkEnableOption "an HTTPS nginx virtual host for this endpoint";
+          proxy = lib.mkOption {
+            type = lib.types.bool;
+            default = true;
+            description = "Proxy / to the endpoint's HTTP port on IPv4 loopback.";
+          };
+          proxyWebsockets = lib.mkOption {
+            type = lib.types.bool;
+            default = false;
+            description = "Enable WebSocket forwarding for the root proxy location.";
+          };
+        };
       };
     });
   };
+
+  config.assertions = lib.concatLists (lib.mapAttrsToList (name: endpoint: [
+    {
+      assertion = endpoint.hostnames ? public;
+      message = "services.endpoints.${name}: nginx.enable requires hostnames.public.";
+    }
+    {
+      assertion = !endpoint.nginx.proxy || endpoint.tcp ? http;
+      message = "services.endpoints.${name}: nginx.proxy requires tcp.http.";
+    }
+  ]) nginxEndpoints);
+
+  config.services.nginx.virtualHosts = lib.mapAttrs' (_: endpoint:
+    lib.nameValuePair (endpoint.hostnames.public or "invalid-endpoint") {
+      forceSSL = true;
+      enableACME = true;
+      acmeRoot = null;
+      locations = lib.mkIf endpoint.nginx.proxy {
+        "/" = {
+          proxyPass = "http://127.0.0.1:${toString (endpoint.tcp.http or 0)}";
+          proxyWebsockets = endpoint.nginx.proxyWebsockets;
+        };
+      };
+    }
+  ) nginxEndpoints;
 
   config.services.endpoints = {
     # Current NixOS default: TCP 22.

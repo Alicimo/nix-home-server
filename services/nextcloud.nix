@@ -41,9 +41,8 @@ in {
   #   path = [ pkgs.perl ];
   # };
 
-  services.nginx.virtualHosts."${fqdn}" = {
-    forceSSL = true;
-    enableACME = true;
-    acmeRoot = null;
+  services.endpoints.nextcloud.nginx = {
+    enable = true;
+    proxy = false;
   };
 }

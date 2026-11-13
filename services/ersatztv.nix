@@ -1,6 +1,5 @@
 { config, pkgs, ... }:
 let
-  fqdn = config.services.endpoints.ersatztv.hostnames.public;
   port = config.services.endpoints.ersatztv.tcp.http;
   ffmpegPath = "${pkgs.jellyfin-ffmpeg}/bin/ffmpeg";
   ffprobePath = "${pkgs.jellyfin-ffmpeg}/bin/ffprobe";
@@ -16,14 +15,9 @@ in
     environment.ETV_UI_PORT = port;
   };
 
-  services.nginx.virtualHosts."${fqdn}" = {
-    forceSSL = true;
-    enableACME = true;
-    acmeRoot = null;
-    locations."/" = {
-      proxyPass = "http://127.0.0.1:${toString port}";
-      proxyWebsockets = true;
-    };
+  services.endpoints.ersatztv.nginx = {
+    enable = true;
+    proxyWebsockets = true;
   };
 
   systemd.services.ersatztv = {

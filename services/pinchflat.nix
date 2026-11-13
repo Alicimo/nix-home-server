@@ -1,6 +1,5 @@
 { config, ... }:
 let
-  fqdn = config.services.endpoints.pinchflat.hostnames.public;
   mediaDir = "${config.services.globalVars.mediaDir}/YouTube";
   port = config.services.endpoints.pinchflat.tcp.http;
 in
@@ -13,13 +12,8 @@ in
     selfhosted = true;
   };
 
-  services.nginx.virtualHosts."${fqdn}" = {
-    forceSSL = true;
-    enableACME = true;
-    acmeRoot = null;
-    locations."/" = {
-      proxyPass = "http://127.0.0.1:${toString port}";
-      proxyWebsockets = true;
-    };
+  services.endpoints.pinchflat.nginx = {
+    enable = true;
+    proxyWebsockets = true;
   };
 }
