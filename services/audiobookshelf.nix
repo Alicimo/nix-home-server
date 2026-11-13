@@ -16,8 +16,13 @@ in {
     };
   };
 
-  services.nginx.virtualHosts."${config.services.endpoints.audiobookshelf.hostnames.lan}".locations."/" = {
-    proxyPass = "http://127.0.0.1:${port}";
-    proxyWebsockets = true;
+  services.nginx.virtualHosts."${config.services.endpoints.audiobookshelf.hostnames.public}" = {
+    forceSSL = true;
+    enableACME = true;
+    acmeRoot = null;
+    locations."/" = {
+      proxyPass = "http://127.0.0.1:${port}";
+      proxyWebsockets = true;
+    };
   };
 }

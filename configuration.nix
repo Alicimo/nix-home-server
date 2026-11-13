@@ -69,7 +69,6 @@
 
   networking = {
     hostName = "tiefenbacher";
-    domain = "home";
     firewall.enable = false;
     networkmanager.enable = true;
   };

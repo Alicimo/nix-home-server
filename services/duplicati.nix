@@ -7,8 +7,13 @@ in {
         port = port;
         interface = "any";
     };
-    services.nginx.virtualHosts."${config.services.endpoints.duplicati.hostnames.lan}".locations."/" = {
-        proxyPass = "http://127.0.0.1:${toString port}";
-        proxyWebsockets = true;
+  services.nginx.virtualHosts."${config.services.endpoints.duplicati.hostnames.public}" = {
+    forceSSL = true;
+    enableACME = true;
+    acmeRoot = null;
+    locations."/" = {
+      proxyPass = "http://127.0.0.1:${toString port}";
+      proxyWebsockets = true;
     };
+  };
 }

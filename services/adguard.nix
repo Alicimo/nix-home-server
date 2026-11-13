@@ -3,7 +3,7 @@ let
   port = config.services.endpoints.adguard.tcp.http;
 in {
   services.adguardhome = {
-    enable = true;
+    enable = false;
     port = port;
     settings = {
       http = {
@@ -16,16 +16,6 @@ in {
         fastest_addr = false;
         bootstrap_dns = [];
         cache_optimistic = true;
-        rewrites = [
-          {
-            domain = "${config.networking.fqdn}";
-            answer = "100.94.208.53";
-          }
-          {
-            domain = "*.${config.networking.fqdn}";
-            answer = "100.94.208.53";
-          }
-        ];
       };
       filters = [
         {
@@ -49,6 +39,4 @@ in {
       ];
     };
   };
-
-  services.nginx.virtualHosts."${config.services.endpoints.adguard.hostnames.lan}".locations."/".proxyPass = "http://127.0.0.1:${toString port}";
 }

@@ -10,7 +10,6 @@
 
   services.jellyfin.enable = true;
 
-  services.nginx.virtualHosts."${config.services.endpoints.jellyfin.hostnames.lan}".locations."/".proxyPass = "http://127.0.0.1:${toString config.services.endpoints.jellyfin.tcp.http}";
   services.nginx.virtualHosts."${config.services.endpoints.jellyfin.hostnames.public}" = {
     locations."/".proxyPass = "http://127.0.0.1:${toString config.services.endpoints.jellyfin.tcp.http}";
     forceSSL = true;

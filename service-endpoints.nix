@@ -1,6 +1,5 @@
 { config, lib, ... }:
 let
-  lan = config.networking.fqdn;
   public = config.services.globalVars.domain;
 in
 {
@@ -38,7 +37,7 @@ in
     nginx = {
       tcp.http = config.services.nginx.defaultHTTPListenPort; # Current NixOS default: 80.
       tcp.https = config.services.nginx.defaultSSLListenPort; # Current NixOS default: 443.
-      hostnames.fallback = "mistake.${lan}";
+      hostnames.fallback = "_";
     };
     tailscale.udp.transport = config.services.tailscale.port; # Current NixOS default: 41641.
     # SMB, NetBIOS and WSD protocol defaults; not explicit listener overrides.
@@ -61,11 +60,10 @@ in
         dns = 53;
       };
       udp.dns = 53;
-      hostnames.lan = "adguard.${lan}";
     };
     audiobookshelf = {
       tcp.http = 13378;
-      hostnames.lan = "audiobook.${lan}";
+      hostnames.public = "audiobook.${public}";
     };
     baby-names = {
       tcp.http = 8023;
@@ -73,7 +71,7 @@ in
     };
     duplicati = {
       tcp.http = 1066;
-      hostnames.lan = "backup.${lan}";
+      hostnames.public = "backup.${public}";
     };
     ersatztv = {
       tcp.http = 8409;
@@ -85,12 +83,9 @@ in
       hostnames.public = "hass.${public}";
     };
     jellyfin = {
-      # Backend HTTP port is application-managed; both nginx routes assume this value.
+      # Backend HTTP port is application-managed; nginx assumes this value.
       tcp.http = 8096;
-      hostnames = {
-        lan = "jellyfin.${lan}";
-        public = "jellyfin.${public}";
-      };
+      hostnames.public = "jellyfin.${public}";
     };
     learnr = {
       tcp.http = 8016;
@@ -98,7 +93,7 @@ in
     };
     librespeed = {
       tcp.http = 777;
-      hostnames.lan = "speed.${lan}";
+      hostnames.public = "speed.${public}";
     };
     navidrome = {
       tcp.http = 4533;
@@ -123,14 +118,11 @@ in
     };
     stirling = {
       tcp.http = 1966;
-      hostnames.lan = "pdf.${lan}";
+      hostnames.public = "pdf.${public}";
     };
     uptime-kuma = {
       tcp.http = 2542;
-      hostnames = {
-        lan = "uptime.${lan}";
-        root = lan;
-      };
+      hostnames.public = "uptime.${public}";
     };
     vaultwarden = {
       tcp.http = 8222;

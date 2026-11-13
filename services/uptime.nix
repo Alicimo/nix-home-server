@@ -8,8 +8,13 @@ in {
       PORT=port;
     };
   };
-  services.nginx.virtualHosts = {
-    "${config.services.endpoints.uptime-kuma.hostnames.lan}".locations."/".proxyPass = "http://127.0.0.1:${port}";
-    "${config.services.endpoints.uptime-kuma.hostnames.root}".locations."/".proxyPass = "http://127.0.0.1:${port}";
+  services.nginx.virtualHosts."${config.services.endpoints.uptime-kuma.hostnames.public}" = {
+    forceSSL = true;
+    enableACME = true;
+    acmeRoot = null;
+    locations."/" = {
+      proxyPass = "http://127.0.0.1:${port}";
+      proxyWebsockets = true;
+    };
   };
 }
