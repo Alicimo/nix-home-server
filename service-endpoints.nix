@@ -1,7 +1,21 @@
 { config, lib, ... }:
 let
   public = config.services.globalVars.domain;
-  nginxEndpoints = lib.filterAttrs (_: endpoint: endpoint.nginx.enable) config.services.endpoints;
+  enabledEndpoints = lib.filterAttrs (_: endpoint: endpoint.enable) config.services.endpoints;
+  nginxEndpoints = lib.filterAttrs (_: endpoint: endpoint.nginx.enable) enabledEndpoints;
+  assignments = lib.concatLists (lib.mapAttrsToList (name: endpoint:
+    (map (hostname: {
+      key = "hostname ${lib.toLower (lib.removeSuffix "." hostname)}";
+      owner = name;
+    }) (lib.unique (builtins.attrValues endpoint.hostnames)))
+    ++ lib.concatMap (protocol: lib.mapAttrsToList (purpose: port: {
+      key = "${protocol} port ${toString port}";
+      owner = "${name}.${protocol}.${purpose}";
+    }) endpoint.${protocol}) [ "tcp" "udp" ]
+  ) enabledEndpoints);
+  collisions = lib.filterAttrs (_: entries:
+    builtins.length (lib.unique (map (entry: entry.owner) entries)) > 1)
+    (lib.groupBy (entry: entry.key) assignments);
 in
 {
   options.services.endpoints = lib.mkOption {
@@ -13,6 +27,11 @@ in
     default = { };
     type = lib.types.attrsOf (lib.types.submodule {
       options = {
+        enable = lib.mkOption {
+          type = lib.types.bool;
+          default = true;
+          description = "Include this endpoint in assignment validation and nginx configuration.";
+        };
         tcp = lib.mkOption {
           type = lib.types.attrsOf lib.types.port;
           default = { };
@@ -45,7 +64,10 @@ in
     });
   };
 
-  config.assertions = lib.concatLists (lib.mapAttrsToList (name: endpoint: [
+  config.assertions = (lib.mapAttrsToList (key: entries: {
+    assertion = false;
+    message = "Endpoint clash for ${key}: ${lib.concatMapStringsSep ", " (entry: entry.owner) entries}.";
+  }) collisions) ++ lib.concatLists (lib.mapAttrsToList (name: endpoint: [
     {
       assertion = endpoint.hostnames ? public;
       message = "services.endpoints.${name}: nginx.enable requires hostnames.public.";
@@ -117,6 +139,11 @@ in
       hostnames.public = "tv.${public}";
     };
     freshrss.hostnames.public = "rss.${public}";
+    gatus = {
+      enable = config.services.gatus.enable;
+      tcp.http = 2542;
+      hostnames.public = "uptime.${public}";
+    };
     home-assistant = {
       tcp.http = 8123;
       hostnames.public = "hass.${public}";
@@ -160,6 +187,7 @@ in
       hostnames.public = "pdf.${public}";
     };
     uptime-kuma = {
+      enable = config.services.uptime-kuma.enable;
       tcp.http = 2542;
       hostnames.public = "uptime.${public}";
     };

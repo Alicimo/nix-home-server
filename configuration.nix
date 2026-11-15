@@ -45,7 +45,8 @@
       services/stirling.nix
       services/learnr.nix
 #      services/tandoor.nix
-      services/uptime.nix
+#      services/uptime.nix
+      services/gatus.nix
       services/opencode.nix
       services/baby_names.nix
       services/retirement_planning.nix
