@@ -15,6 +15,15 @@ let
     && entry.hostnames ? public
     && builtins.hasAttr entry.hostnames.public config.services.nginx.virtualHosts
   ) config.services.endpoints;
+  monitoredEndpoints = (lib.mapAttrsToList (name: entry: {
+    inherit name;
+    url = "https://${entry.hostnames.public}/";
+  }) webEndpoints) ++ [
+    {
+      name = "pi-hole";
+      url = "http://pi.hole/admin/";
+    }
+  ];
 in
 {
   services.gatus = {
@@ -35,9 +44,8 @@ in
         type = "sqlite";
         path = "/var/lib/gatus/gatus.db";
       };
-      endpoints = lib.mapAttrsToList (name: entry: {
-        inherit name;
-        url = "https://${entry.hostnames.public}/";
+      endpoints = map (entry: {
+        inherit (entry) name url;
         interval = "60s";
         client = {
           timeout = "10s";
@@ -55,7 +63,7 @@ in
             send-on-resolved = true;
           }
         ];
-      }) webEndpoints;
+      }) monitoredEndpoints;
     };
   };
 
