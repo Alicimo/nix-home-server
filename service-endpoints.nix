@@ -3,6 +3,11 @@ let
   public = config.services.globalVars.domain;
   enabledEndpoints = lib.filterAttrs (_: endpoint: endpoint.enable) config.services.endpoints;
   nginxEndpoints = lib.filterAttrs (_: endpoint: endpoint.nginx.enable) enabledEndpoints;
+  webEndpoints = lib.filterAttrs (
+    _: endpoint:
+    endpoint.hostnames ? public
+    && builtins.hasAttr endpoint.hostnames.public config.services.nginx.virtualHosts
+  ) enabledEndpoints;
   assignments = lib.concatLists (lib.mapAttrsToList (name: endpoint:
     (map (hostname: {
       key = "hostname ${lib.toLower (lib.removeSuffix "." hostname)}";
@@ -18,6 +23,30 @@ let
     (lib.groupBy (entry: entry.key) assignments);
 in
 {
+  options.services.webEndpoints = lib.mkOption {
+    description = "Enabled web endpoints, sorted by name, for service discovery consumers.";
+    readOnly = true;
+    type = lib.types.listOf (
+      lib.types.submodule {
+        options = {
+          name = lib.mkOption {
+            type = lib.types.str;
+            description = "Endpoint registry name.";
+          };
+          url = lib.mkOption {
+            type = lib.types.str;
+            description = "Public HTTPS URL.";
+          };
+        };
+      }
+    );
+  };
+
+  config.services.webEndpoints = lib.mapAttrsToList (name: endpoint: {
+    inherit name;
+    url = "https://${endpoint.hostnames.public}/";
+  }) webEndpoints;
+
   options.services.endpoints = lib.mkOption {
     description = ''
       Configured host-side assignments and known protocol defaults for tiefenbacher.
@@ -143,6 +172,11 @@ in
       enable = config.services.gatus.enable;
       tcp.http = 2542;
       hostnames.public = "uptime.${public}";
+    };
+    homepage = {
+      enable = config.services.homepage-dashboard.enable;
+      tcp.http = 8082;
+      hostnames.public = "home.${public}";
     };
     home-assistant = {
       tcp.http = 8123;

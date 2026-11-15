@@ -5,20 +5,8 @@
 }:
 let
   endpoint = config.services.endpoints.gatus;
-  webEndpoints = lib.filterAttrs (
-    name: entry:
-    !(builtins.elem name [
-      "gatus"
-      "uptime-kuma"
-    ])
-    && entry.enable
-    && entry.hostnames ? public
-    && builtins.hasAttr entry.hostnames.public config.services.nginx.virtualHosts
-  ) config.services.endpoints;
-  monitoredEndpoints = (lib.mapAttrsToList (name: entry: {
-    inherit name;
-    url = "https://${entry.hostnames.public}/";
-  }) webEndpoints) ++ [
+  webEndpoints = lib.filter (entry: entry.name != "gatus") config.services.webEndpoints;
+  monitoredEndpoints = webEndpoints ++ [
     {
       name = "pi-hole";
       url = "http://pi.hole/admin/";
