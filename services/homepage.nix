@@ -19,7 +19,12 @@ in
     services = [
       {
         Services = map (entry: {
-          ${entry.name}.href = entry.url;
+          ${entry.name} = {
+            href = entry.url;
+          }
+          // lib.optionalAttrs (entry.icon != "") {
+            inherit (entry) icon;
+          };
         }) webEndpoints;
       }
     ];

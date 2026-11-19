@@ -170,7 +170,8 @@ Practical examples:
 
 ## Endpoint Registry
 
-- Edit application assignments in `service-endpoints.csv`; the header defines the six columns.
+- Edit application assignments in `service-endpoints.csv`; the header defines the seven columns.
+- The optional `icon` column accepts Homepage icon identifiers or image URLs; blank means no icon. URLs must follow the CSV restrictions below.
 - Use literal `true`/`false` flags. Blank ports and subdomains mean no assignment. Quoting and embedded commas are unsupported.
 - `disabled` excludes an endpoint from nginx, discovery, and clash checks; application activation remains in its service module.
 - A subdomain generates a public nginx host. `proxy` controls the standard HTTP proxy; `websockets` controls WebSocket forwarding.

@@ -2,7 +2,7 @@
 let
   public = config.services.globalVars.domain;
   # Controlled CSV: split lines and commas only; quoting and escaping are unsupported.
-  header = "name,subdomain,http_port,disabled,proxy,websockets";
+  header = "name,subdomain,http_port,disabled,proxy,websockets,icon";
   lines = lib.filter (line: line != "") (
     lib.splitString "\n" (builtins.readFile ./service-endpoints.csv)
   );
@@ -22,13 +22,14 @@ let
       subdomain = builtins.elemAt fields 1;
       port = builtins.elemAt fields 2;
     in
-    if builtins.length fields != 6 then
-      throw "Endpoint CSV: expected six columns in '${line}'."
+    if builtins.length fields != 7 then
+      throw "Endpoint CSV: expected seven columns in '${line}'."
     else if name == "" then
       throw "Endpoint CSV: endpoint names must not be empty."
     else
       lib.nameValuePair name {
         enable = !(parseBool "${name}.disabled" (builtins.elemAt fields 3));
+        icon = builtins.elemAt fields 6;
         tcp = lib.optionalAttrs (port != "") {
           http = lib.toInt port;
         };
@@ -117,6 +118,11 @@ in
             type = lib.types.str;
             description = "Public HTTPS URL.";
           };
+          icon = lib.mkOption {
+            type = lib.types.str;
+            default = "";
+            description = "Homepage icon identifier or image URL; empty means no icon.";
+          };
         };
       }
     );
@@ -124,6 +130,7 @@ in
 
   config.services.webEndpoints = lib.mapAttrsToList (name: endpoint: {
     inherit name;
+    inherit (endpoint) icon;
     url = "https://${endpoint.hostnames.public}/";
   }) webEndpoints;
 
@@ -138,6 +145,11 @@ in
       lib.types.submodule (
         { config, ... }: {
           options = {
+            icon = lib.mkOption {
+              type = lib.types.str;
+              default = "";
+              description = "Homepage icon identifier or image URL; empty means no icon.";
+            };
             enable = lib.mkOption {
               type = lib.types.bool;
               default = true;
