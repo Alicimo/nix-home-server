@@ -167,3 +167,12 @@ Practical examples:
 - `nix flake check --no-build` currently evaluates successfully but emits warnings about a legacy Nextcloud install and a renamed `system` field.
 - The git worktree may already contain unrelated user edits; inspect before changing shared files.
 - There is no existing `AGENTS.md` prior to this file.
+
+## Endpoint Registry
+
+- Edit application assignments in `service-endpoints.csv`; the header defines the six columns.
+- Use literal `true`/`false` flags. Blank ports and subdomains mean no assignment. Quoting and embedded commas are unsupported.
+- `disabled` excludes an endpoint from nginx, discovery, and clash checks; application activation remains in its service module.
+- A subdomain generates a public nginx host. `proxy` controls the standard HTTP proxy; `websockets` controls WebSocket forwarding.
+- Keep OpenSSH, nginx, Tailscale, and Samba protocol assignments in `service-endpoints.nix`.
+- Jellyfin's CSV port records an application-managed value; keep it aligned with the application.

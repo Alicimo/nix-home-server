@@ -54,7 +54,4 @@ in
       }) monitoredEndpoints;
     };
   };
-
-  services.endpoints.gatus.nginx.enable = true;
-
 }

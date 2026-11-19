@@ -11,9 +11,4 @@ in
     openFirewall = false;
     selfhosted = true;
   };
-
-  services.endpoints.pinchflat.nginx = {
-    enable = true;
-    proxyWebsockets = true;
-  };
 }

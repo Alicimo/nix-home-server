@@ -15,9 +15,4 @@ in
       RestartSec = "5s";
     };
   };
-
-  services.endpoints.opencode.nginx = {
-    enable = true;
-    proxyWebsockets = true;
-  };
 }

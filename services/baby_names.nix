@@ -25,9 +25,4 @@ in
       RestartSec = "5s";
     };
   };
-
-  services.endpoints.baby-names.nginx = {
-    enable = true;
-    proxyWebsockets = true;
-  };
 }

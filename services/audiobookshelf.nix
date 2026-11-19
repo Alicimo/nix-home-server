@@ -15,9 +15,4 @@ in {
       ports = [ "${port}:80" ];
     };
   };
-
-  services.endpoints.audiobookshelf.nginx = {
-    enable = true;
-    proxyWebsockets = true;
-  };
 }

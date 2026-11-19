@@ -65,7 +65,7 @@
         '';
         locations."/" = {
             proxyPass = "http://[::1]:${toString config.services.endpoints.home-assistant.tcp.http}";
-            proxyWebsockets = true;
+            proxyWebsockets = config.services.endpoints.home-assistant.nginx.proxyWebsockets;
         };
     };
 }

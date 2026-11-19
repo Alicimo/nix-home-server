@@ -26,9 +26,4 @@ in
       RestartSec = "5s";
     };
   };
-
-  services.endpoints.retirement-planning.nginx = {
-    enable = true;
-    proxyWebsockets = true;
-  };
 }

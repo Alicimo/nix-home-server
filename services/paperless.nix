@@ -2,6 +2,7 @@
 {
   services.paperless = {
     enable = true;
+    port = config.services.endpoints.paperless.tcp.http;
     dataDir = "${config.services.globalVars.dataDir}/paperless";
     passwordFile = "/etc/nixos/secrets/paperless-password";
     consumptionDirIsPublic = true;
@@ -10,5 +11,4 @@
       PAPERLESS_AUTO_LOGIN_USERNAME = "admin";
     };
   };
-  services.endpoints.paperless.nginx.enable = true;
 }

@@ -40,9 +40,4 @@ in {
   # systemd.services.nextcloud-cron = {
   #   path = [ pkgs.perl ];
   # };
-
-  services.endpoints.nextcloud.nginx = {
-    enable = true;
-    proxy = false;
-  };
 }

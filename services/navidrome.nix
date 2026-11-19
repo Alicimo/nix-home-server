@@ -10,6 +10,4 @@
       EnableInsightsCollector = false;
     };
   };
-
-  services.endpoints.navidrome.nginx.enable = true;
 }

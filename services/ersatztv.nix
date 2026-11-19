@@ -15,11 +15,6 @@ in
     environment.ETV_UI_PORT = port;
   };
 
-  services.endpoints.ersatztv.nginx = {
-    enable = true;
-    proxyWebsockets = true;
-  };
-
   systemd.services.ersatztv = {
     path = [ pkgs.sqlite ];
     preStart = ''

@@ -17,6 +17,4 @@ in {
       };
     };
   };
-
-  services.endpoints.librespeed.nginx.enable = true;
 }

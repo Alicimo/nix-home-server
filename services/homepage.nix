@@ -47,7 +47,6 @@ in
 
   systemd.services.homepage-dashboard.environment.HOSTNAME = "127.0.0.1";
 
-  services.endpoints.homepage.nginx.enable = true;
   services.nginx.virtualHosts.${endpoint.hostnames.public}.locations."/".extraConfig = ''
     allow 100.64.0.0/10;
     allow fd7a:115c:a1e0::/48;

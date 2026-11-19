@@ -13,6 +13,4 @@ in {
       ports = [ "${port}:8080" ];
     };
   };
-
-  services.endpoints.stirling.nginx.enable = true;
 }

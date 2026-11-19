@@ -8,8 +8,4 @@ in {
       PORT=port;
     };
   };
-  services.endpoints.uptime-kuma.nginx = {
-    enable = true;
-    proxyWebsockets = true;
-  };
 }

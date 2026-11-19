@@ -8,6 +8,4 @@ in
     host = "127.0.0.1";
     port = port;
   };
-
-  services.endpoints.learnr.nginx.enable = true;
 }

@@ -1,26 +1,106 @@
 { config, lib, ... }:
 let
   public = config.services.globalVars.domain;
+  # Controlled CSV: split lines and commas only; quoting and escaping are unsupported.
+  header = "name,subdomain,http_port,disabled,proxy,websockets";
+  lines = lib.filter (line: line != "") (
+    lib.splitString "\n" (builtins.readFile ./service-endpoints.csv)
+  );
+  parseBool =
+    name: value:
+    if value == "true" then
+      true
+    else if value == "false" then
+      false
+    else
+      throw "Endpoint CSV: ${name} must be true or false, got '${value}'.";
+  entries = map (
+    line:
+    let
+      fields = lib.splitString "," line;
+      name = builtins.elemAt fields 0;
+      subdomain = builtins.elemAt fields 1;
+      port = builtins.elemAt fields 2;
+    in
+    if builtins.length fields != 6 then
+      throw "Endpoint CSV: expected six columns in '${line}'."
+    else if name == "" then
+      throw "Endpoint CSV: endpoint names must not be empty."
+    else
+      lib.nameValuePair name {
+        enable = !(parseBool "${name}.disabled" (builtins.elemAt fields 3));
+        tcp = lib.optionalAttrs (port != "") {
+          http = lib.toInt port;
+        };
+        hostnames = lib.optionalAttrs (subdomain != "") {
+          public = "${subdomain}.${public}";
+        };
+        nginx = {
+          proxy = parseBool "${name}.proxy" (builtins.elemAt fields 4);
+          proxyWebsockets = parseBool "${name}.websockets" (builtins.elemAt fields 5);
+        };
+      }
+  ) (lib.drop 1 lines);
+  names = map (entry: entry.name) entries;
+  csvEndpoints =
+    if lines == [ ] || builtins.head lines != header then
+      throw "Endpoint CSV: expected header '${header}'."
+    else if builtins.length names != builtins.length (lib.unique names) then
+      throw "Endpoint CSV: duplicate endpoint names."
+    else if
+      lib.any (
+        name:
+        builtins.elem name [
+          "openssh"
+          "nginx"
+          "tailscale"
+          "samba"
+        ]
+      ) names
+    then
+      throw "Endpoint CSV: infrastructure assignments must remain in Nix."
+    else
+      lib.listToAttrs entries;
   enabledEndpoints = lib.filterAttrs (_: endpoint: endpoint.enable) config.services.endpoints;
   nginxEndpoints = lib.filterAttrs (_: endpoint: endpoint.nginx.enable) enabledEndpoints;
+  publicHostnames =
+    endpoints:
+    lib.concatMap (
+      endpoint: lib.optional (endpoint.hostnames ? public) (endpoint.hostnames.public or "")
+    ) (builtins.attrValues endpoints);
+  disabledHostnames = lib.subtractLists (publicHostnames enabledEndpoints) (
+    publicHostnames (lib.filterAttrs (_: endpoint: !endpoint.enable) config.services.endpoints)
+  );
   webEndpoints = lib.filterAttrs (
     _: endpoint:
     endpoint.hostnames ? public
     && builtins.hasAttr endpoint.hostnames.public config.services.nginx.virtualHosts
   ) enabledEndpoints;
-  assignments = lib.concatLists (lib.mapAttrsToList (name: endpoint:
-    (map (hostname: {
-      key = "hostname ${lib.toLower (lib.removeSuffix "." hostname)}";
-      owner = name;
-    }) (lib.unique (builtins.attrValues endpoint.hostnames)))
-    ++ lib.concatMap (protocol: lib.mapAttrsToList (purpose: port: {
-      key = "${protocol} port ${toString port}";
-      owner = "${name}.${protocol}.${purpose}";
-    }) endpoint.${protocol}) [ "tcp" "udp" ]
-  ) enabledEndpoints);
-  collisions = lib.filterAttrs (_: entries:
-    builtins.length (lib.unique (map (entry: entry.owner) entries)) > 1)
-    (lib.groupBy (entry: entry.key) assignments);
+  assignments = lib.concatLists (
+    lib.mapAttrsToList (
+      name: endpoint:
+      (map (hostname: {
+        key = "hostname ${lib.toLower (lib.removeSuffix "." hostname)}";
+        owner = name;
+      }) (lib.unique (builtins.attrValues endpoint.hostnames)))
+      ++
+        lib.concatMap
+          (
+            protocol:
+            lib.mapAttrsToList (purpose: port: {
+              key = "${protocol} port ${toString port}";
+              owner = "${name}.${protocol}.${purpose}";
+            }) endpoint.${protocol}
+          )
+          [
+            "tcp"
+            "udp"
+          ]
+    ) enabledEndpoints
+  );
+  collisions = lib.filterAttrs (
+    _: entries: builtins.length (lib.unique (map (entry: entry.owner) entries)) > 1
+  ) (lib.groupBy (entry: entry.key) assignments);
 in
 {
   options.services.webEndpoints = lib.mkOption {
@@ -54,60 +134,82 @@ in
       Container-internal ports remain in the service modules.
     '';
     default = { };
-    type = lib.types.attrsOf (lib.types.submodule {
-      options = {
-        enable = lib.mkOption {
-          type = lib.types.bool;
-          default = true;
-          description = "Include this endpoint in assignment validation and nginx configuration.";
-        };
-        tcp = lib.mkOption {
-          type = lib.types.attrsOf lib.types.port;
-          default = { };
-          description = "Named host-side TCP ports.";
-        };
-        udp = lib.mkOption {
-          type = lib.types.attrsOf lib.types.port;
-          default = { };
-          description = "Named host-side UDP ports.";
-        };
-        hostnames = lib.mkOption {
-          type = lib.types.attrsOf lib.types.str;
-          default = { };
-          description = "Named nginx hostnames.";
-        };
-        nginx = {
-          enable = lib.mkEnableOption "an HTTPS nginx virtual host for this endpoint";
-          proxy = lib.mkOption {
-            type = lib.types.bool;
-            default = true;
-            description = "Proxy / to the endpoint's HTTP port on IPv4 loopback.";
+    type = lib.types.attrsOf (
+      lib.types.submodule (
+        { config, ... }: {
+          options = {
+            enable = lib.mkOption {
+              type = lib.types.bool;
+              default = true;
+              description = "Include this endpoint in assignment validation, nginx configuration, and discovery; does not enable the application.";
+            };
+            tcp = lib.mkOption {
+              type = lib.types.attrsOf lib.types.port;
+              default = { };
+              description = "Named host-side TCP ports.";
+            };
+            udp = lib.mkOption {
+              type = lib.types.attrsOf lib.types.port;
+              default = { };
+              description = "Named host-side UDP ports.";
+            };
+            hostnames = lib.mkOption {
+              type = lib.types.attrsOf lib.types.str;
+              default = { };
+              description = "Named nginx hostnames.";
+            };
+            nginx = {
+              enable = lib.mkOption {
+                type = lib.types.bool;
+                readOnly = true;
+                default = config.hostnames ? public;
+                description = "Whether this endpoint has a public hostname for nginx.";
+              };
+              proxy = lib.mkOption {
+                type = lib.types.bool;
+                default = true;
+                description = "Proxy / to the endpoint's HTTP port on IPv4 loopback.";
+              };
+              proxyWebsockets = lib.mkOption {
+                type = lib.types.bool;
+                default = false;
+                description = "Enable WebSocket forwarding for the root proxy location.";
+              };
+            };
           };
-          proxyWebsockets = lib.mkOption {
-            type = lib.types.bool;
-            default = false;
-            description = "Enable WebSocket forwarding for the root proxy location.";
-          };
-        };
-      };
-    });
+        }
+      )
+    );
   };
 
-  config.assertions = (lib.mapAttrsToList (key: entries: {
-    assertion = false;
-    message = "Endpoint clash for ${key}: ${lib.concatMapStringsSep ", " (entry: entry.owner) entries}.";
-  }) collisions) ++ lib.concatLists (lib.mapAttrsToList (name: endpoint: [
-    {
-      assertion = endpoint.hostnames ? public;
-      message = "services.endpoints.${name}: nginx.enable requires hostnames.public.";
-    }
-    {
-      assertion = !endpoint.nginx.proxy || endpoint.tcp ? http;
-      message = "services.endpoints.${name}: nginx.proxy requires tcp.http.";
-    }
-  ]) nginxEndpoints);
+  config.assertions =
+    (lib.mapAttrsToList (key: entries: {
+      assertion = false;
+      message = "Endpoint clash for ${key}: ${
+        lib.concatMapStringsSep ", " (entry: entry.owner) entries
+      }.";
+    }) collisions)
+    ++ lib.concatLists (
+      lib.mapAttrsToList (name: endpoint: [
+        {
+          assertion = endpoint.hostnames ? public;
+          message = "services.endpoints.${name}: nginx.enable requires hostnames.public.";
+        }
+        {
+          assertion = !endpoint.nginx.proxy || endpoint.tcp ? http;
+          message = "services.endpoints.${name}: nginx.proxy requires tcp.http.";
+        }
+      ]) nginxEndpoints
+    );
 
-  config.services.nginx.virtualHosts = lib.mapAttrs' (_: endpoint:
+  # Service modules can also generate virtual hosts. Preserve shared hostnames
+  # when an active endpoint uses the same hostname as a disabled entry.
+  options.services.nginx.virtualHosts = lib.mkOption {
+    apply = lib.filterAttrs (hostname: _: !(builtins.elem hostname disabledHostnames));
+  };
+
+  config.services.nginx.virtualHosts = lib.mapAttrs' (
+    _: endpoint:
     lib.nameValuePair (endpoint.hostnames.public or "invalid-endpoint") {
       forceSSL = true;
       enableACME = true;
@@ -121,9 +223,11 @@ in
     }
   ) nginxEndpoints;
 
-  config.services.endpoints = {
+  config.services.endpoints = csvEndpoints // {
     # Current NixOS default: TCP 22.
-    openssh.tcp = lib.listToAttrs (map (port: lib.nameValuePair "ssh-${toString port}" port) config.services.openssh.ports);
+    openssh.tcp = lib.listToAttrs (
+      map (port: lib.nameValuePair "ssh-${toString port}" port) config.services.openssh.ports
+    );
     nginx = {
       tcp.http = config.services.nginx.defaultHTTPListenPort; # Current NixOS default: 80.
       tcp.https = config.services.nginx.defaultSSLListenPort; # Current NixOS default: 443.
@@ -142,92 +246,6 @@ in
         netbiosDatagram = 138;
         wsd = 3702;
       };
-    };
-    adguard = {
-      # DNS TCP/UDP 53 are protocol defaults; HTTP is explicitly configured.
-      tcp = {
-        http = 999;
-        dns = 53;
-      };
-      udp.dns = 53;
-    };
-    audiobookshelf = {
-      tcp.http = 13378;
-      hostnames.public = "audiobook.${public}";
-    };
-    baby-names = {
-      tcp.http = 8023;
-      hostnames.public = "baby-names.${public}";
-    };
-    duplicati = {
-      tcp.http = 1066;
-      hostnames.public = "backup.${public}";
-    };
-    ersatztv = {
-      tcp.http = 8409;
-      hostnames.public = "tv.${public}";
-    };
-    freshrss.hostnames.public = "rss.${public}";
-    gatus = {
-      enable = config.services.gatus.enable;
-      tcp.http = 2542;
-      hostnames.public = "uptime.${public}";
-    };
-    homepage = {
-      enable = config.services.homepage-dashboard.enable;
-      tcp.http = 8082;
-      hostnames.public = "home.${public}";
-    };
-    home-assistant = {
-      tcp.http = 8123;
-      hostnames.public = "hass.${public}";
-    };
-    jellyfin = {
-      # Backend HTTP port is application-managed; nginx assumes this value.
-      tcp.http = 8096;
-      hostnames.public = "jellyfin.${public}";
-    };
-    learnr = {
-      tcp.http = 8016;
-      hostnames.public = "learnr.${public}";
-    };
-    librespeed = {
-      tcp.http = 777;
-      hostnames.public = "speed.${public}";
-    };
-    navidrome = {
-      tcp.http = 4533;
-      hostnames.public = "music.${public}";
-    };
-    nextcloud.hostnames.public = "nextcloud.${public}";
-    opencode = {
-      tcp.http = 4096;
-      hostnames.public = "opencode.${public}";
-    };
-    paperless = {
-      tcp.http = config.services.paperless.port; # Current NixOS default: 28981.
-      hostnames.public = "paperless.${public}";
-    };
-    pinchflat = {
-      tcp.http = 8945;
-      hostnames.public = "pinchflat.${public}";
-    };
-    retirement-planning = {
-      tcp.http = 8024;
-      hostnames.public = "retirement.${public}";
-    };
-    stirling = {
-      tcp.http = 1966;
-      hostnames.public = "pdf.${public}";
-    };
-    uptime-kuma = {
-      enable = config.services.uptime-kuma.enable;
-      tcp.http = 2542;
-      hostnames.public = "uptime.${public}";
-    };
-    vaultwarden = {
-      tcp.http = 8222;
-      hostnames.public = "vault.${public}";
     };
   };
 }

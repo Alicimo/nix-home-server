@@ -7,8 +7,4 @@ in {
         port = port;
         interface = "any";
     };
-  services.endpoints.duplicati.nginx = {
-    enable = true;
-    proxyWebsockets = true;
-  };
 }

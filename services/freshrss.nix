@@ -11,8 +11,4 @@ in {
     virtualHost = "${fqdn}";
     dataDir = "${dir}";
   };
-  services.endpoints.freshrss.nginx = {
-    enable = true;
-    proxy = false;
-  };
 }

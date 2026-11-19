@@ -9,6 +9,4 @@
   };
 
   services.jellyfin.enable = true;
-
-  services.endpoints.jellyfin.nginx.enable = true;
 }
