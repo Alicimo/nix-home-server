@@ -1,0 +1,116 @@
+# Defaults: disabled = false, proxy = true, websockets = false.
+# Omit subdomain, http_port, or icon when no assignment is needed.
+
+[adguard]
+http_port = 999
+disabled = true
+icon = "adguard-home.png"
+
+[audiobookshelf]
+subdomain = "audiobook"
+http_port = 13378
+websockets = true
+icon = "audiobookshelf.png"
+
+[baby-names]
+subdomain = "baby-names"
+http_port = 8023
+websockets = true
+
+[duplicati]
+subdomain = "backup"
+http_port = 1066
+websockets = true
+icon = "duplicati.png"
+
+[ersatztv]
+subdomain = "tv"
+http_port = 8409
+websockets = true
+icon = "ersatztv.png"
+
+[freshrss]
+subdomain = "rss"
+proxy = false
+icon = "freshrss.png"
+
+[gatus]
+subdomain = "uptime"
+http_port = 2542
+icon = "gatus.png"
+
+[homepage]
+subdomain = "home"
+http_port = 8082
+icon = "homepage.png"
+
+[home-assistant]
+subdomain = "hass"
+http_port = 8123
+proxy = false
+websockets = true
+icon = "home-assistant.png"
+
+[jellyfin]
+subdomain = "jellyfin"
+http_port = 8096
+icon = "jellyfin.png"
+
+[learnr]
+subdomain = "learnr"
+http_port = 8016
+
+[librespeed]
+subdomain = "speed"
+http_port = 777
+icon = "librespeed.png"
+
+[navidrome]
+subdomain = "music"
+http_port = 4533
+icon = "navidrome.png"
+
+[nextcloud]
+subdomain = "nextcloud"
+proxy = false
+icon = "nextcloud.png"
+
+[opencode]
+subdomain = "opencode"
+http_port = 4096
+websockets = true
+icon = "opencode.png"
+
+[paperless]
+subdomain = "paperless"
+http_port = 28981
+icon = "paperless-ngx.png"
+
+[pinchflat]
+subdomain = "pinchflat"
+http_port = 8945
+websockets = true
+icon = "pinchflat.png"
+
+[retirement-planning]
+subdomain = "retirement"
+http_port = 8024
+websockets = true
+icon = "mdi-cash-multiple"
+
+[stirling]
+subdomain = "pdf"
+http_port = 1966
+icon = "stirling-pdf.png"
+
+[uptime-kuma]
+subdomain = "uptime"
+http_port = 2542
+disabled = true
+websockets = true
+icon = "uptime-kuma.png"
+
+[vaultwarden]
+subdomain = "vault"
+http_port = 8222
+icon = "vaultwarden.png"

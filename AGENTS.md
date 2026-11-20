@@ -170,10 +170,11 @@ Practical examples:
 
 ## Endpoint Registry
 
-- Edit application assignments in `service-endpoints.csv`; the header defines the seven columns.
-- The optional `icon` column accepts Homepage icon identifiers or image URLs; blank means no icon. URLs must follow the CSV restrictions below.
-- Use literal `true`/`false` flags. Blank ports and subdomains mean no assignment. Quoting and embedded commas are unsupported.
+- Edit application assignments in `service-endpoints.toml`, with one table per endpoint name.
+- Supported fields are `subdomain`, `http_port`, `disabled`, `proxy`, `websockets`, and `icon`; unknown fields and incorrect types fail evaluation.
+- Defaults are `disabled = false`, `proxy = true`, and `websockets = false`. Omit ports, subdomains, and icons when no assignment is needed.
+- The optional `icon` field accepts Homepage icon identifiers or image URLs. Use TOML strings, integer ports, and literal `true`/`false` flags.
 - `disabled` excludes an endpoint from nginx, discovery, and clash checks; application activation remains in its service module.
 - A subdomain generates a public nginx host. `proxy` controls the standard HTTP proxy; `websockets` controls WebSocket forwarding.
 - Keep OpenSSH, nginx, Tailscale, and Samba protocol assignments in `service-endpoints.nix`.
-- Jellyfin's CSV port records an application-managed value; keep it aligned with the application.
+- Jellyfin's TOML `http_port` records an application-managed value; keep it aligned with the application.

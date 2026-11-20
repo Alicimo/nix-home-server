@@ -1,54 +1,48 @@
 { config, lib, ... }:
 let
   public = config.services.globalVars.domain;
-  # Controlled CSV: split lines and commas only; quoting and escaping are unsupported.
-  header = "name,subdomain,http_port,disabled,proxy,websockets,icon";
-  lines = lib.filter (line: line != "") (
-    lib.splitString "\n" (builtins.readFile ./service-endpoints.csv)
-  );
-  parseBool =
-    name: value:
-    if value == "true" then
-      true
-    else if value == "false" then
-      false
-    else
-      throw "Endpoint CSV: ${name} must be true or false, got '${value}'.";
-  entries = map (
-    line:
-    let
-      fields = lib.splitString "," line;
-      name = builtins.elemAt fields 0;
-      subdomain = builtins.elemAt fields 1;
-      port = builtins.elemAt fields 2;
-    in
-    if builtins.length fields != 7 then
-      throw "Endpoint CSV: expected seven columns in '${line}'."
-    else if name == "" then
-      throw "Endpoint CSV: endpoint names must not be empty."
-    else
-      lib.nameValuePair name {
-        enable = !(parseBool "${name}.disabled" (builtins.elemAt fields 3));
-        icon = builtins.elemAt fields 6;
-        tcp = lib.optionalAttrs (port != "") {
-          http = lib.toInt port;
-        };
-        hostnames = lib.optionalAttrs (subdomain != "") {
-          public = "${subdomain}.${public}";
-        };
-        nginx = {
-          proxy = parseBool "${name}.proxy" (builtins.elemAt fields 4);
-          proxyWebsockets = parseBool "${name}.websockets" (builtins.elemAt fields 5);
-        };
-      }
-  ) (lib.drop 1 lines);
-  names = map (entry: entry.name) entries;
-  csvEndpoints =
-    if lines == [ ] || builtins.head lines != header then
-      throw "Endpoint CSV: expected header '${header}'."
-    else if builtins.length names != builtins.length (lib.unique names) then
-      throw "Endpoint CSV: duplicate endpoint names."
-    else if
+  inventory =
+    (lib.evalModules {
+      modules = [
+        {
+          options.entries = lib.mkOption {
+            type = lib.types.attrsOf (
+              lib.types.submodule {
+                options = {
+                  subdomain = lib.mkOption {
+                    type = lib.types.str;
+                    default = "";
+                  };
+                  http_port = lib.mkOption {
+                    type = lib.types.nullOr lib.types.port;
+                    default = null;
+                  };
+                  disabled = lib.mkOption {
+                    type = lib.types.bool;
+                    default = false;
+                  };
+                  proxy = lib.mkOption {
+                    type = lib.types.bool;
+                    default = true;
+                  };
+                  websockets = lib.mkOption {
+                    type = lib.types.bool;
+                    default = false;
+                  };
+                  icon = lib.mkOption {
+                    type = lib.types.str;
+                    default = "";
+                  };
+                };
+              }
+            );
+          };
+          config.entries = builtins.fromTOML (builtins.readFile ./service-endpoints.toml);
+        }
+      ];
+    }).config.entries;
+  applicationEndpoints =
+    if
       lib.any (
         name:
         builtins.elem name [
@@ -57,11 +51,30 @@ let
           "tailscale"
           "samba"
         ]
-      ) names
+      ) (builtins.attrNames inventory)
     then
-      throw "Endpoint CSV: infrastructure assignments must remain in Nix."
+      throw "Endpoint TOML: infrastructure assignments must remain in Nix."
     else
-      lib.listToAttrs entries;
+      lib.mapAttrs (
+        name: entry:
+        if name == "" then
+          throw "Endpoint TOML: endpoint names must not be empty."
+        else
+          {
+            enable = !entry.disabled;
+            inherit (entry) icon;
+            tcp = lib.optionalAttrs (entry.http_port != null) {
+              http = entry.http_port;
+            };
+            hostnames = lib.optionalAttrs (entry.subdomain != "") {
+              public = "${entry.subdomain}.${public}";
+            };
+            nginx = {
+              proxy = entry.proxy;
+              proxyWebsockets = entry.websockets;
+            };
+          }
+      ) inventory;
   enabledEndpoints = lib.filterAttrs (_: endpoint: endpoint.enable) config.services.endpoints;
   nginxEndpoints = lib.filterAttrs (_: endpoint: endpoint.nginx.enable) enabledEndpoints;
   publicHostnames =
@@ -235,7 +248,7 @@ in
     }
   ) nginxEndpoints;
 
-  config.services.endpoints = csvEndpoints // {
+  config.services.endpoints = applicationEndpoints // {
     # Current NixOS default: TCP 22.
     openssh.tcp = lib.listToAttrs (
       map (port: lib.nameValuePair "ssh-${toString port}" port) config.services.openssh.ports
