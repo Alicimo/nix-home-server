@@ -168,13 +168,18 @@ Practical examples:
 - The git worktree may already contain unrelated user edits; inspect before changing shared files.
 - There is no existing `AGENTS.md` prior to this file.
 
-## Endpoint Registry
+## Service Registry
 
-- Edit application assignments in `service-endpoints.toml`, with one table per endpoint name.
-- Supported fields are `subdomain`, `http_port`, `disabled`, `proxy`, `websockets`, and `icon`; unknown fields and incorrect types fail evaluation.
-- Defaults are `disabled = false`, `proxy = true`, and `websockets = false`. Omit ports, subdomains, and icons when no assignment is needed.
+- Edit application choices and assignments in `services.toml`, with one table per service name.
+- Supported fields are `module`, `enabled`, `subdomain`, `http_port`, and `icon`; unknown fields and incorrect types fail evaluation.
+- `module` is required and names a repository-relative Nix module. Absolute paths, parent traversal, symlinks, missing files, and duplicate module assignments are rejected.
+- Services default to `enabled = true`. Set `enabled = false` to exclude the entire application module, nginx host, discovery, monitoring, and clash checks. Removing an entry also excludes its module.
+- Omit ports, subdomains, and icons when no assignment is needed; individual modules may require a hostname or port.
 - The optional `icon` field accepts Homepage icon identifiers or image URLs. Use TOML strings, integer ports, and literal `true`/`false` flags.
-- `disabled` excludes an endpoint from nginx, discovery, and clash checks; application activation remains in its service module.
-- A subdomain generates a public nginx host. `proxy` controls the standard HTTP proxy; `websockets` controls WebSocket forwarding.
-- Keep OpenSSH, nginx, Tailscale, and Samba protocol assignments in `service-endpoints.nix`.
+- `service-registry.nix` loads and validates the inventory independently of NixOS `config`; both import selection and endpoint generation use it.
+- Service modules own proxy and WebSocket behavior. Set `services.endpoints.<name>.nginx.proxy = true` to use the shared localhost proxy renderer; it defaults to false. Set `proxyWebsockets = true` when needed.
+- Keep disabled application choices in `services.toml` rather than commented-out imports.
+- Enabling Grafana requires `/etc/nixos/secrets/grafana-secret-key`, readable by Grafana. Reuse the original key when restoring an existing database.
+- Shared graphics settings live in `hardware-configuration.nix`; preserve them if regenerating the hardware configuration. Keep shared host resources and infrastructure imports outside the application inventory. OpenSSH, nginx, Tailscale, and Samba protocol assignments remain in `service-endpoints.nix`.
+- Disabling a module must not add data deletion or cleanup behavior.
 - Jellyfin's TOML `http_port` records an application-managed value; keep it aligned with the application.

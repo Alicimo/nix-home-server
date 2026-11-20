@@ -2,7 +2,13 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, inputs, ... }:
+{
+  config,
+  pkgs,
+  inputs,
+  lib,
+  ...
+}:
 {
   nixpkgs.overlays = [
     (final: prev: {
@@ -14,44 +20,16 @@
     })
   ];
 
-  imports =
-    [
-      ./hardware-configuration.nix
-      ./vim.nix
-      ./service-endpoints.nix
-      modules/vars.nix
-      services/samba.nix
-      services/jellyfin.nix
-      services/ersatztv.nix
-      services/pinchflat.nix
-      services/navidrome.nix
-      services/nextcloud.nix
-      services/adguard.nix
-#      services/grafana.nix
-#      services/prometheus.nix
-#      services/fronius.nix
-#      services/smokeping.nix
-      services/vaultwarden.nix
-      services/librespeed.nix
-      services/libation.nix
-      services/audiobookshelf.nix
-      services/freshrss.nix
-#      services/openvscode.nix
-#      services/whoogle.nix
-      services/restic.nix
-      services/duplicati.nix
-      services/home_assistant.nix
-      services/paperless.nix
-      services/stirling.nix
-      services/learnr.nix
-#      services/tandoor.nix
-#      services/uptime.nix
-      services/gatus.nix
-      services/homepage.nix
-      services/opencode.nix
-      services/baby_names.nix
-      services/retirement_planning.nix
-    ];
+  imports = [
+    ./hardware-configuration.nix
+    ./vim.nix
+    ./service-endpoints.nix
+    modules/vars.nix
+    services/samba.nix
+    services/libation.nix
+    services/restic.nix
+  ]
+  ++ (import ./service-registry.nix { inherit lib; }).imports;
 
   services.globalVars = {
     dataDir = "/mnt/data";

@@ -3,6 +3,10 @@ let
   dir="${config.services.globalVars.containerDir}/stirling";
   port = toString config.services.endpoints.stirling.tcp.http;
 in {
+  services.endpoints.stirling.nginx = {
+    proxy = true;
+  };
+
   virtualisation.oci-containers.containers = {
      stirling = {
       image = "frooodle/s-pdf";

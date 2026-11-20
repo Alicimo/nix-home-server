@@ -2,6 +2,10 @@
 let
   port = toString config.services.endpoints.librespeed.tcp.http;
 in {
+  services.endpoints.librespeed.nginx = {
+    proxy = true;
+  };
+
   virtualisation.oci-containers.containers = {
     librespeed = {
       image = "lscr.io/linuxserver/librespeed";

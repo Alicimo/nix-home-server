@@ -4,6 +4,11 @@ let
   appDir = "/home/alistair/workspace/baby_names";
 in
 {
+  services.endpoints.baby-names.nginx = {
+    proxy = true;
+    proxyWebsockets = true;
+  };
+
   systemd.services.baby-names = {
     description = "Baby Name Ranker FastAPI app";
     wantedBy = [ "multi-user.target" ];

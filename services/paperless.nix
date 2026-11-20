@@ -1,5 +1,9 @@
 { config, ... }:
 {
+  services.endpoints.paperless.nginx = {
+    proxy = true;
+  };
+
   services.paperless = {
     enable = true;
     port = config.services.endpoints.paperless.tcp.http;

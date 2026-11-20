@@ -2,10 +2,8 @@
 {
   services.tandoor-recipes = {
     enable = true;
-    port = 2534;
+    port = config.services.endpoints.tandoor.tcp.http;
     extraConfig.MEDIA_ROOT = "/var/lib/tandoor-recipes/media";
   };
-  services.nginx.virtualHosts."food.${config.networking.fqdn}" = {
-    locations."/".proxyPass = "http://127.0.0.1:${toString config.services.tandoor-recipes.port}";
-  };
+  services.endpoints.tandoor.nginx.proxy = true;
 }

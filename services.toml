@@ -1,0 +1,164 @@
+# Services are enabled by default; set enabled = false to exclude a module.
+# Module paths are relative to this repository. Omit unneeded assignments.
+
+[adguard]
+module = "services/adguard.nix"
+enabled = false
+http_port = 999
+icon = "adguard-home.png"
+
+[audiobookshelf]
+module = "services/audiobookshelf.nix"
+subdomain = "audiobook"
+http_port = 13378
+icon = "audiobookshelf.png"
+
+[baby-names]
+module = "services/baby_names.nix"
+subdomain = "baby-names"
+http_port = 8023
+
+[duplicati]
+module = "services/duplicati.nix"
+subdomain = "backup"
+http_port = 1066
+icon = "duplicati.png"
+
+[ersatztv]
+module = "services/ersatztv.nix"
+subdomain = "tv"
+http_port = 8409
+icon = "ersatztv.png"
+
+[freshrss]
+module = "services/freshrss.nix"
+subdomain = "rss"
+icon = "freshrss.png"
+
+[gatus]
+module = "services/gatus.nix"
+subdomain = "uptime"
+http_port = 2542
+icon = "gatus.png"
+
+[homepage]
+module = "services/homepage.nix"
+subdomain = "home"
+http_port = 8082
+icon = "homepage.png"
+
+[home-assistant]
+module = "services/home_assistant.nix"
+subdomain = "hass"
+http_port = 8123
+icon = "home-assistant.png"
+
+[jellyfin]
+module = "services/jellyfin.nix"
+subdomain = "jellyfin"
+http_port = 8096
+icon = "jellyfin.png"
+
+[learnr]
+module = "services/learnr.nix"
+subdomain = "learnr"
+http_port = 8016
+
+[librespeed]
+module = "services/librespeed.nix"
+subdomain = "speed"
+http_port = 777
+icon = "librespeed.png"
+
+[navidrome]
+module = "services/navidrome.nix"
+subdomain = "music"
+http_port = 4533
+icon = "navidrome.png"
+
+[nextcloud]
+module = "services/nextcloud.nix"
+subdomain = "nextcloud"
+icon = "nextcloud.png"
+
+[opencode]
+module = "services/opencode.nix"
+subdomain = "opencode"
+http_port = 4096
+icon = "opencode.png"
+
+[paperless]
+module = "services/paperless.nix"
+subdomain = "paperless"
+http_port = 28981
+icon = "paperless-ngx.png"
+
+[pinchflat]
+module = "services/pinchflat.nix"
+subdomain = "pinchflat"
+http_port = 8945
+icon = "pinchflat.png"
+
+[retirement-planning]
+module = "services/retirement_planning.nix"
+subdomain = "retirement"
+http_port = 8024
+icon = "mdi-cash-multiple"
+
+[stirling]
+module = "services/stirling.nix"
+subdomain = "pdf"
+http_port = 1966
+icon = "stirling-pdf.png"
+
+[uptime-kuma]
+module = "services/uptime.nix"
+enabled = false
+subdomain = "uptime"
+http_port = 2542
+icon = "uptime-kuma.png"
+
+[vaultwarden]
+module = "services/vaultwarden.nix"
+subdomain = "vault"
+http_port = 8222
+icon = "vaultwarden.png"
+
+[fronius]
+module = "services/fronius.nix"
+enabled = false
+http_port = 3003
+
+[grafana]
+module = "services/grafana.nix"
+enabled = false
+subdomain = "grafana"
+http_port = 3000
+
+[openvscode]
+module = "services/openvscode.nix"
+enabled = false
+subdomain = "code"
+http_port = 3210
+
+[prometheus]
+module = "services/prometheus.nix"
+enabled = false
+http_port = 3001
+
+[smokeping]
+module = "services/smokeping.nix"
+enabled = false
+subdomain = "smokeping"
+
+[tandoor]
+module = "services/tandoor.nix"
+enabled = false
+subdomain = "food"
+http_port = 2534
+
+[whoogle]
+module = "services/whoogle.nix"
+enabled = false
+subdomain = "search"
+http_port = 5000

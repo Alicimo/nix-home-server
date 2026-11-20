@@ -1,10 +1,11 @@
 { config, pkgs, ... }:
 let
-  fqdn = "smokeping.${config.networking.fqdn}";
-in {
+  fqdn = config.services.endpoints.smokeping.hostnames.public;
+in
+{
   services.smokeping = {
     enable = true;
-    port = 888;
+    webService = false;
     hostName = "${fqdn}";
     targetConfig = ''
       probe = FPing
@@ -87,8 +88,12 @@ in {
     '';
   };
 
-  services.fcgiwrap = {
-    enable = true;
+  users.users.${config.services.nginx.user}.extraGroups = [ "smokeping" ];
+
+  services.fcgiwrap.instances.smokeping = {
+    process.user = "smokeping";
+    process.group = "smokeping";
+    socket = { inherit (config.services.nginx) user group; };
   };
 
   services.nginx.virtualHosts."${fqdn}" = {
@@ -103,7 +108,7 @@ in {
         fastcgi_intercept_errors on;
         include ${pkgs.nginx}/conf/fastcgi_params;
         fastcgi_param SCRIPT_FILENAME ${config.users.users.smokeping.home}/smokeping.fcgi;
-        fastcgi_pass unix:/run/fcgiwrap.sock;
+        fastcgi_pass unix:${config.services.fcgiwrap.instances.smokeping.socket.address};
       '';
     };
 

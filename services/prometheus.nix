@@ -2,11 +2,11 @@
 {
   services.prometheus = {
     enable = true;
-    port = 3001;
+    port = config.services.endpoints.prometheus.tcp.http;
     exporters = {
       node = {
         enable = true;
-        enabledCollectors = [ 
+        enabledCollectors = [
           "systemd"
           "processes"
         ];
@@ -16,21 +16,27 @@
     scrapeConfigs = [
       {
         job_name = "prometheus";
-        static_configs = [{
-          targets = [ "127.0.0.1:${toString config.services.prometheus.port}" ];
-        }];
+        static_configs = [
+          {
+            targets = [ "127.0.0.1:${toString config.services.prometheus.port}" ];
+          }
+        ];
       }
       {
         job_name = "usage";
-        static_configs = [{
-          targets = [ "127.0.0.1:${toString config.services.prometheus.exporters.node.port}" ];
-        }];
+        static_configs = [
+          {
+            targets = [ "127.0.0.1:${toString config.services.prometheus.exporters.node.port}" ];
+          }
+        ];
       }
       {
         job_name = "solar";
-        static_configs = [{
-          targets = [ "127.0.0.1:3003" ];
-        }];
+        static_configs = [
+          {
+            targets = [ "127.0.0.1:3003" ];
+          }
+        ];
       }
     ];
   };

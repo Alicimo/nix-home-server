@@ -3,6 +3,11 @@ let
   dir="${config.services.globalVars.containerDir}/audiobookshelf";
   port = toString config.services.endpoints.audiobookshelf.tcp.http;
 in {
+  services.endpoints.audiobookshelf.nginx = {
+    proxy = true;
+    proxyWebsockets = true;
+  };
+
   virtualisation.oci-containers.containers = {
      audiobookshelf = {
       image = "ghcr.io/advplyr/audiobookshelf";

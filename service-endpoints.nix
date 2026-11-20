@@ -1,80 +1,17 @@
 { config, lib, ... }:
 let
   public = config.services.globalVars.domain;
-  inventory =
-    (lib.evalModules {
-      modules = [
-        {
-          options.entries = lib.mkOption {
-            type = lib.types.attrsOf (
-              lib.types.submodule {
-                options = {
-                  subdomain = lib.mkOption {
-                    type = lib.types.str;
-                    default = "";
-                  };
-                  http_port = lib.mkOption {
-                    type = lib.types.nullOr lib.types.port;
-                    default = null;
-                  };
-                  disabled = lib.mkOption {
-                    type = lib.types.bool;
-                    default = false;
-                  };
-                  proxy = lib.mkOption {
-                    type = lib.types.bool;
-                    default = true;
-                  };
-                  websockets = lib.mkOption {
-                    type = lib.types.bool;
-                    default = false;
-                  };
-                  icon = lib.mkOption {
-                    type = lib.types.str;
-                    default = "";
-                  };
-                };
-              }
-            );
-          };
-          config.entries = builtins.fromTOML (builtins.readFile ./service-endpoints.toml);
-        }
-      ];
-    }).config.entries;
-  applicationEndpoints =
-    if
-      lib.any (
-        name:
-        builtins.elem name [
-          "openssh"
-          "nginx"
-          "tailscale"
-          "samba"
-        ]
-      ) (builtins.attrNames inventory)
-    then
-      throw "Endpoint TOML: infrastructure assignments must remain in Nix."
-    else
-      lib.mapAttrs (
-        name: entry:
-        if name == "" then
-          throw "Endpoint TOML: endpoint names must not be empty."
-        else
-          {
-            enable = !entry.disabled;
-            inherit (entry) icon;
-            tcp = lib.optionalAttrs (entry.http_port != null) {
-              http = entry.http_port;
-            };
-            hostnames = lib.optionalAttrs (entry.subdomain != "") {
-              public = "${entry.subdomain}.${public}";
-            };
-            nginx = {
-              proxy = entry.proxy;
-              proxyWebsockets = entry.websockets;
-            };
-          }
-      ) inventory;
+  inventory = (import ./service-registry.nix { inherit lib; }).entries;
+  applicationEndpoints = lib.mapAttrs (_: entry: {
+    enable = entry.enabled;
+    inherit (entry) icon;
+    tcp = lib.optionalAttrs (entry.http_port != null) {
+      http = entry.http_port;
+    };
+    hostnames = lib.optionalAttrs (entry.subdomain != "") {
+      public = "${entry.subdomain}.${public}";
+    };
+  }) inventory;
   enabledEndpoints = lib.filterAttrs (_: endpoint: endpoint.enable) config.services.endpoints;
   nginxEndpoints = lib.filterAttrs (_: endpoint: endpoint.nginx.enable) enabledEndpoints;
   publicHostnames =
@@ -166,7 +103,7 @@ in
             enable = lib.mkOption {
               type = lib.types.bool;
               default = true;
-              description = "Include this endpoint in assignment validation, nginx configuration, and discovery; does not enable the application.";
+              description = "Include this endpoint in assignment validation, nginx configuration, and discovery; application module inclusion is controlled by services.toml.";
             };
             tcp = lib.mkOption {
               type = lib.types.attrsOf lib.types.port;
@@ -192,8 +129,8 @@ in
               };
               proxy = lib.mkOption {
                 type = lib.types.bool;
-                default = true;
-                description = "Proxy / to the endpoint's HTTP port on IPv4 loopback.";
+                default = false;
+                description = "Internal service-module setting: request the shared localhost HTTP proxy; not an inventory flag.";
               };
               proxyWebsockets = lib.mkOption {
                 type = lib.types.bool;

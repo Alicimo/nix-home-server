@@ -3,6 +3,11 @@ let
   port = config.services.endpoints.opencode.tcp.http;
 in
 {
+  services.endpoints.opencode.nginx = {
+    proxy = true;
+    proxyWebsockets = true;
+  };
+
   systemd.services.opencode-web = {
     description = "OpenCode web UI";
     wantedBy = [ "multi-user.target" ];

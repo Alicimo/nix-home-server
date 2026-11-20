@@ -14,6 +14,10 @@ let
   ];
 in
 {
+  services.endpoints.gatus.nginx = {
+    proxy = true;
+  };
+
   services.gatus = {
     enable = true;
     environmentFile = "/etc/nixos/secrets/gatus.env";

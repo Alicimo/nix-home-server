@@ -5,6 +5,11 @@ let
   dataDir = "${appDir}/data";
 in
 {
+  services.endpoints.retirement-planning.nginx = {
+    proxy = true;
+    proxyWebsockets = true;
+  };
+
   systemd.services.retirement-planning = {
     description = "Retirement Planning FastAPI app";
     wantedBy = [ "multi-user.target" ];

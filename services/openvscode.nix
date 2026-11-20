@@ -2,14 +2,13 @@
 {
   services.openvscode-server = {
     enable = true;
-    port = 3210;
+    port = config.services.endpoints.openvscode.tcp.http;
     withoutConnectionToken = true;
     user = "alistair";
     host = "127.0.0.1";
   };
-  services.nginx.virtualHosts."code.${config.networking.fqdn}".locations."/" = {
-    proxyPass = "http://127.0.0.1:${toString config.services.openvscode-server.port}";
+  services.endpoints.openvscode.nginx = {
+    proxy = true;
     proxyWebsockets = true;
   };
 }
-# 

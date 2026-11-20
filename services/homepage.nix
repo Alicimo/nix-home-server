@@ -4,6 +4,10 @@ let
   webEndpoints = lib.filter (entry: entry.name != "homepage") config.services.webEndpoints;
 in
 {
+  services.endpoints.homepage.nginx = {
+    proxy = true;
+  };
+
   services.homepage-dashboard = {
     enable = true;
     listenPort = endpoint.tcp.http;

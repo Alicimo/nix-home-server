@@ -2,8 +2,12 @@
 let
   port = config.services.endpoints.adguard.tcp.http;
 in {
+  services.endpoints.adguard.nginx = {
+    proxy = true;
+  };
+
   services.adguardhome = {
-    enable = false;
+    enable = true;
     port = port;
     settings = {
       http = {

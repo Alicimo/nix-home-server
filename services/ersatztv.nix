@@ -5,6 +5,11 @@ let
   ffprobePath = "${pkgs.jellyfin-ffmpeg}/bin/ffprobe";
 in
 {
+  services.endpoints.ersatztv.nginx = {
+    proxy = true;
+    proxyWebsockets = true;
+  };
+
   services.ersatztv = {
     enable = true;
     baseUrl = "/";

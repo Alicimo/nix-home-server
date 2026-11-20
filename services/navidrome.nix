@@ -1,5 +1,9 @@
 { config, ... }:
 {
+  services.endpoints.navidrome.nginx = {
+    proxy = true;
+  };
+
   services.navidrome = {
     enable = true;
     settings = {

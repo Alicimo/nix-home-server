@@ -4,6 +4,11 @@ let
   port = config.services.endpoints.pinchflat.tcp.http;
 in
 {
+  services.endpoints.pinchflat.nginx = {
+    proxy = true;
+    proxyWebsockets = true;
+  };
+
   services.pinchflat = {
     enable = true;
     port = port;

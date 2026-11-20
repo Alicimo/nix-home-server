@@ -1,5 +1,9 @@
 { config, ... }:
 {
+  services.endpoints.vaultwarden.nginx = {
+    proxy = true;
+  };
+
   services.vaultwarden = {
     enable = true;
     backupDir = "${config.services.globalVars.containerDir}/vaultwarden";
