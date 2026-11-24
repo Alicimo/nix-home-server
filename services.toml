@@ -15,6 +15,7 @@ icon = "audiobookshelf.png"
 
 [baby-names]
 module = "services/baby_names.nix"
+enabled = false
 subdomain = "baby-names"
 http_port = 8023
 
@@ -26,6 +27,7 @@ icon = "duplicati.png"
 
 [ersatztv]
 module = "services/ersatztv.nix"
+enabled = false
 subdomain = "tv"
 http_port = 8409
 icon = "ersatztv.png"
@@ -83,6 +85,7 @@ icon = "nextcloud.png"
 
 [opencode]
 module = "services/opencode.nix"
+enabled = false
 subdomain = "opencode"
 http_port = 4096
 icon = "opencode.png"
