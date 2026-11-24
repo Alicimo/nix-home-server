@@ -1,12 +1,10 @@
 {
   config,
-  lib,
   pkgs,
   ...
 }:
 let
   dir = "${config.services.globalVars.dataDir}/libation";
-  stateDir = "${dir}/config";
   books = "${config.services.globalVars.mediaDir}/Audiobooks";
 in
 {
@@ -25,7 +23,7 @@ in
     ];
     environment = {
       HOME = dir;
-      LIBATION_FILES_DIR = stateDir;
+      LIBATION_FILES_DIR = "${dir}/config";
       DOTNET_CLI_TELEMETRY_OPTOUT = "1";
     };
     serviceConfig = {
@@ -37,15 +35,9 @@ in
       TimeoutStartSec = "infinity";
       NoNewPrivileges = true;
     };
-    preStart = ''
-      test -r ${lib.escapeShellArg "${stateDir}/AccountsSettings.json"}
-      test -r ${lib.escapeShellArg "${stateDir}/Settings.json"}
-      test -r ${lib.escapeShellArg "${stateDir}/LibationContext.db"}
-      test -w ${lib.escapeShellArg books}
-    '';
     script = ''
-      ${pkgs.libation}/bin/libationcli scan --libationFiles ${lib.escapeShellArg stateDir}
-      ${pkgs.libation}/bin/libationcli liberate --libationFiles ${lib.escapeShellArg stateDir}
+      ${pkgs.libation}/bin/libationcli scan
+      ${pkgs.libation}/bin/libationcli liberate
     '';
   };
 
@@ -54,7 +46,6 @@ in
     timerConfig = {
       OnBootSec = "5min";
       OnUnitInactiveSec = "30min";
-      Unit = "libation.service";
     };
   };
 }
