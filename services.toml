@@ -114,6 +114,12 @@ subdomain = "pdf"
 http_port = 1966
 icon = "stirling-pdf.png"
 
+[train-timetable]
+module = "services/train_timetable.nix"
+subdomain = "trains"
+http_port = 8025
+icon = "mdi-train"
+
 [uptime-kuma]
 module = "services/uptime.nix"
 enabled = false

@@ -70,7 +70,28 @@
       "inputs": {
         "learnr": "learnr",
         "nixpkgs": "nixpkgs_2",
-        "nixpkgs-unstable": "nixpkgs-unstable"
+        "nixpkgs-unstable": "nixpkgs-unstable",
+        "train-timetable": "train-timetable"
+      }
+    },
+    "train-timetable": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1795426291,
+        "narHash": "sha256-9bEudJmdGpayN0QaHr7whftYXm30xxktaj5PmyQ2NUw=",
+        "owner": "Alicimo",
+        "repo": "train_timetable",
+        "rev": "eb5d11e41f14d8bd563eb5f9240508f733bd06e2",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Alicimo",
+        "repo": "train_timetable",
+        "type": "github"
       }
     }
   },
